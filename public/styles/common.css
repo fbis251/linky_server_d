@@ -1,0 +1,26 @@
+body {
+    font-family: Roboto !important;
+    font-size: 14pt !important;
+    font-weight: 300 !important;
+    background-color: #212121;
+    color: #eee;
+}
+
+.delete {
+    /*font-size: 200%;*/
+}
+
+/* unvisited link */
+a:link {
+    color: #eee;
+}
+
+/* visited link */
+a:visited {
+    color: #eee;
+}
+
+/* mouse over link */
+a:hover {
+    color: #eee;
+}
