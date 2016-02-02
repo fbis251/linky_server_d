@@ -8,7 +8,7 @@ do
     dub build
     if [ "$?" == "0" ] ; then
         clear
-        dub &
+        ./$NAME &
     fi
     inotifywait -e modify ./source/*.d ./views/*.dt
     killall $NAME

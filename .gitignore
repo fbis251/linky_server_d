@@ -20,4 +20,5 @@ docs.json
 __dummy.html
 
 link_saver
-links.txt
+private/links.txt
+private/password.txt

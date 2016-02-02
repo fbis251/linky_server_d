@@ -1,0 +1,23 @@
+doctype html
+- void css(string file)
+    link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
+
+html
+    head
+        title Saved URLs
+        - css("common");
+    body
+        div
+            a(href="/logout") Log Out
+
+        - int index = 0;
+        - import std.stdio;
+        - if ( urls.length > 0)
+            - foreach( url; urls )
+                - string deleteUrl = format("/delete/%d", index++);
+                div
+                    a.delete(href=deleteUrl)[x]
+                    b =index
+                    a(href=url,target="_blank")=url
+        - else
+            p No URLs saved
