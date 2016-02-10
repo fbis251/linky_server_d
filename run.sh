@@ -1,15 +1,12 @@
 #!/bin/bash
+set -x
+NAME="link_saver"
+#DEBUG="--vv"
+DEBUG="--verbose"
 
-NAME=link_saver
+clear;
+./"$NAME" "$DEBUG" &
+when-changed ./source/*.d ./views/*.dt -c "killall $NAME; clear; dub build && ./$NAME $DEBUG &"
 
-while true ;
-do
-    clear
-    dub build
-    if [ "$?" == "0" ] ; then
-        clear
-        ./$NAME &
-    fi
-    inotifywait -e modify ./source/*.d ./views/*.dt
-    killall $NAME
-done
+# ./"$NAME" &
+# when-changed ./source/*.d ./views/*.dt -c "killall $NAME; clear; dub build && ./$NAME &"
