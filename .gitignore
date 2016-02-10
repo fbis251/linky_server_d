@@ -23,3 +23,5 @@ link_saver
 private/links.txt
 private/password.txt
 .idea/workspace.xml
+
+*.sublime-workspace
