@@ -4,7 +4,7 @@ doctype html
 
 html
     head
-        title Saved URLs
+        title Saved Links
         - css("common");
     body
         div
@@ -14,7 +14,7 @@ html
         - import std.stdio;
         - if ( urls.length > 0)
             - foreach( url; urls )
-                - string deleteUrl = format("/delete/%d", index++);
+                - string deleteUrl = format("/delete?id=%d", index++);
                 div
                     a.delete(href=deleteUrl)[x]
                     b =index
