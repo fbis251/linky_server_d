@@ -42,7 +42,7 @@ struct SuccessResponse {
 @rootPathFromName
 interface Api {
     @headerParam("_authToken", "Authorization")
-    Json postAdd(string _authToken, string linkJsonString);
+    Json postAdd(string _authToken, Link link);
 
     @headerParam("_authToken", "Authorization")
     @path("/archive/:id")
@@ -51,29 +51,19 @@ interface Api {
     @headerParam("_authToken", "Authorization")
     Json getList(string _authToken, string message = null);
 
-    @path(":username/:password")
-    Json postLogin(string _username, string _password);
+    Json postLogin(string username, string password);
 }
 
 ///
 class LinkServiceRestApi : Api {
 override:
-    Json postAdd(string _authToken, string linkJsonString) {
+    Json postAdd(string _authToken, Link link) {
         checkAuthToken(_authToken);
-        enforce(linkJsonString != "", "Invalid request.");
+        enforce(validateUrl(link.url), "Invalid URL");
         SuccessResponse response;
 
-        auto json = parseJsonString(linkJsonString);
-        logInfo("Trying to add URL: %s", json["url"]);
-        foreach (string key, value; json) {
-            logInfo("%s: %s", key, value);
-            if(key == "url") {
-                string newUrl = json["url"].get!string;
-                enforce(validateUrl(newUrl), "Invalid URL");
-                response.success = addUrlToDatabase(newUrl);
-                logInfo("Saved URL: %s", newUrl);
-            }
-        }
+        logInfo("Trying to add URL: %s", link.url);
+        response.success = addUrlToDatabase(link.url);
 
         return serializeToJson(response);
     }
