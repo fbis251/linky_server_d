@@ -1,4 +1,4 @@
-module link_service_rest;
+module linkservice.rest;
 
 import vibe.appmain;
 import vibe.core.core;
@@ -10,7 +10,7 @@ import vibe.web.rest;
 
 import core.time;
 
-import link_service_common;
+import linkservice.common;
 
 struct LinksList {
     Link[] linksList;

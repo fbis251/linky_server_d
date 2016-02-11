@@ -1,4 +1,4 @@
-module password;
+module linkservice.utils.password;
 
 import std.algorithm, std.array, std.stdio, std.format;
 import std.digest.sha : sha256Of;

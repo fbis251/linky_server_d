@@ -1,4 +1,4 @@
-module database;
+module linkservice.utils.database;
 
 import std.algorithm, std.array, std.stdio;
 

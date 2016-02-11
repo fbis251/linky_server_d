@@ -8,7 +8,10 @@ import vibe.http.server;
 import vibe.web.rest;
 import std.stdio;
 
-import database, link_service_common, link_service_rest, link_service;
+import linkservice.utils.database;
+import linkservice.common;
+import linkservice.rest;
+import linkservice.web;
 
 ///
 shared static this() {

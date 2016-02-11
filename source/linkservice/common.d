@@ -1,11 +1,11 @@
-module link_service_common;
+module linkservice.common;
 
 import vibe.d;
 import vibe.http.router;
 import std.algorithm;
 
-import password;
-import database;
+import linkservice.utils.password;
+import linkservice.utils.database;
 
 ///
 string[] urls;

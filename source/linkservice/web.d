@@ -1,4 +1,4 @@
-module link_service;
+module linkservice.web;
 
 import std.algorithm, std.array, std.stdio, std.format, std.conv;
 import std.exception : enforce;
@@ -9,7 +9,7 @@ import vibe.http.server;
 import vibe.utils.validation;
 import vibe.web.web;
 
-import link_service_common;
+import linkservice.common;
 
 /// Aggregates all information about the currently logged in user (if any).
 struct UserSettings {
