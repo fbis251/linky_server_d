@@ -8,7 +8,9 @@ html
         - css("common");
     body
         div
-            a(href="/logout") Log Out
+            p Logged in as:
+                b =settings.userName
+                a(href="/logout") Log Out
 
         - int index = 0;
         - import std.stdio;
