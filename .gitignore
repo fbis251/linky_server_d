@@ -20,9 +20,12 @@ dub.selections.json
 docs.json
 __dummy.html
 
-link_saver
-private/links.txt
-private/password.txt
+# IDE/Editor configs
 .idea/workspace.xml
-
 *.sublime-workspace
+
+# Project-specific files
+link_saver
+private/
+*.tgz
+*.tar.gz
