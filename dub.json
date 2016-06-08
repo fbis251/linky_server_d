@@ -1,0 +1,14 @@
+{
+    "name": "link_saver",
+    "description": "A simple vibe.d URL saving application",
+    "copyright": "Copyright © 2016, Fernando Barillas",
+    "authors": ["Fernando Barillas (fbis251)"],
+    "homepage": "https://fernandobarillas.com",
+    "license": "MIT",
+    "dependencies": {
+        "vibe-d": "~>0.7.28",
+        "botan:passhash": "~>1.12.5",
+        "d2sqlite3": "~>0.9.7"
+    },
+    "versions": ["VibeDefaultMain"],
+}

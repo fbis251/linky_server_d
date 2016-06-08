@@ -1,7 +1,0 @@
-name "link_saver"
-description "A simple vibe.d URL saving application"
-copyright "Copyright © 2016, Fernando Barillas"
-authors "Fernando Barillas (fbis251)"
-dependency "vibe-d" version="~>0.7.27"
-versions "VibeDefaultMain"
-license "MIT"
