@@ -12,10 +12,10 @@ html
                 b =errorMessage
         form(action="/login",method="post")
             div
-                b Username
                 input(name="username")
+                b Username
             div
-                b Password
                 input(name="password",type="password")
+                b Password
             div
                 input(type="submit",value="submit")

@@ -1,9 +1,9 @@
 body {
     font-family: Roboto !important;
-    font-size: 14pt !important;
+    font-size: 13pt !important;
     font-weight: 300 !important;
-    background-color: #212121;
-    color: #eee;
+    background-color: #263238;
+    color: #eceff1;
 }
 
 .delete {
@@ -12,15 +12,16 @@ body {
 
 /* unvisited link */
 a:link {
-    color: #eee;
+    color: #ff9800;
 }
 
 /* visited link */
 a:visited {
-    color: #eee;
+    color: #ff9800;
 }
 
 /* mouse over link */
 a:hover {
-    color: #eee;
+    color: #ff9800;
 }
+
