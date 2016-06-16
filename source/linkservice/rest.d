@@ -11,51 +11,30 @@ import vibe.web.rest;
 import core.time;
 
 import linkservice.common;
-
-struct LinksList {
-    Link[] linksList;
-}
-
-struct Link {
-    int linkId;
-    string category;
-    int timestamp;
-    string title;
-    string url;
-}
-
-struct LoginRequest {
-    string username;
-    string password;
-}
-
-struct LoginResponse {
-    bool success;
-    string refreshToken;
-    string username;
-}
-
-struct SuccessResponse {
-    bool success;
-}
+import linkservice.models;
 
 @rootPathFromName
 interface Api {
     @headerParam("_authToken", "Authorization")
     Json postAdd(string _authToken, Link link);
 
+    Json postLogin(string username, string password);
+
     @headerParam("_authToken", "Authorization")
     @path("/archive/:id")
-    Json getArchive(string _authToken, int _id);
+    Json getArchive(string _authToken, int _id, bool isArchived);
 
     @headerParam("_authToken", "Authorization")
-    Json getList(string _authToken, string message = null);
+    @path("/delete/:id")
+    Json getDelete(string _authToken, int _id);
 
-    Json postLogin(string username, string password);
+    @headerParam("_authToken", "Authorization")
+    Json getList(string _authToken);
 }
 
 ///
 class LinkServiceRestApi : Api {
+
 override:
     Json postAdd(string _authToken, Link link) {
         checkAuthToken(_authToken);
@@ -63,33 +42,10 @@ override:
         SuccessResponse response;
 
         logInfo("Trying to add URL: %s", link.url);
-        response.success = addUrlToDatabase(link.url);
-
+        response.success = addLinkToDatabase(link);
+        // TODO: Return the link object here instead
+        // response.link = getLinkFromDb(blah);
         return serializeToJson(response);
-    }
-
-    Json getArchive(string _authToken, int id) {
-        checkAuthToken(_authToken);
-        logInfo("Trying to delete ID: %d", id);
-        SuccessResponse response;
-        response.success = deleteUrlFromDatabase(id);
-        return serializeToJson(response);
-    }
-
-    Json getList(string _authToken, string message) {
-        checkAuthToken(_authToken);
-        logInfo("URLs: %d", urls.length);
-
-        LinksList linksList;
-        int id = 0;
-        foreach(url; urls) {
-            Link link;
-            link.linkId = id++;
-            link.url = url;
-            linksList.linksList ~= link;
-        }
-
-        return serializeToJson(linksList);
     }
 
     Json postLogin(string username, string password) {
@@ -101,5 +57,31 @@ override:
         }
 
         return serializeToJson(response);
+    }
+
+    Json getDelete(string _authToken, int linkId) {
+        checkAuthToken(_authToken);
+        logInfo("Trying to delete ID: %d", linkId);
+        SuccessResponse response;
+        response.success = deleteUrlFromDatabase(userId, linkId);
+        return serializeToJson(response);
+    }
+
+    Json getArchive(string _authToken, int linkId, bool isArchived) {
+        checkAuthToken(_authToken);
+        logInfo("Trying to archive ID: %d", linkId);
+        SuccessResponse response;
+        response.success = false;
+        // TODO: Allow setting link.isArchived = isArchived
+        return serializeToJson(response);
+    }
+
+    Json getList(string _authToken) {
+        logInfo("getList()");
+        checkAuthToken(_authToken);
+        linksList = getLinksFromDatabase(userId);
+        logInfo("URLs: %d", linksList.linksList.length);
+
+        return serializeToJson(linksList);
     }
 }
