@@ -10,7 +10,7 @@ import linkservice.utils.crypto;
 import linkservice.utils.linksdb;
 import linkservice.models;
 
-int userId = 2; /// TODO: change me to a real ID
+int userId = 0; /// TODO: change me to a real ID
 LinksDb linksDb; ///
 LinksList linksList; ///
 
