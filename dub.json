@@ -10,5 +10,5 @@
         "botan:passhash": "~>1.12.5",
         "d2sqlite3": "~>0.9.7"
     },
-    "versions": ["VibeDefaultMain"],
+    "versions": ["VibeDefaultMain", "logHeaders"],
 }
