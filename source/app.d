@@ -8,25 +8,28 @@ import vibe.http.server;
 import vibe.web.rest;
 import std.stdio;
 
-import linkservice.utils.database;
+import d2sqlite3;
+import linkservice.utils.linksdb;
 import linkservice.common;
 import linkservice.rest;
 import linkservice.web;
 
 ///
 shared static this() {
-    urls = readDatabase();
+    auto db = Database("private/database.sqlite");
+    linksDb = new LinksDb(db);
+
     auto router = new URLRouter;
 
     router
-        .registerWebInterface(new LinkService())
+        .registerWebInterface(new LinkServiceWeb())
         .registerRestInterface(new LinkServiceRestApi())
         .get("*", serveStaticFiles("public/"));
 
     auto routes = router.getAllRoutes();
     foreach(route; routes) {
-        writefln("Method: %s", route.method);
-        writefln("pattern: %s", route.pattern);
+        debugfln("Method: %s", route.method);
+        debugfln("pattern: %s", route.pattern);
     }
 
     auto settings = new HTTPServerSettings();

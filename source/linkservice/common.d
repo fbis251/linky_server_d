@@ -1,39 +1,46 @@
 module linkservice.common;
 
+import std.algorithm, std.stdio;
+
+import d2sqlite3;
 import vibe.d;
 import vibe.http.router;
-import std.algorithm;
 
-import linkservice.utils.password;
-import linkservice.utils.database;
+import linkservice.utils.crypto;
+import linkservice.utils.linksdb;
+import linkservice.models;
+
+int userId = 2; /// TODO: change me to a real ID
+LinksDb linksDb; ///
+LinksList linksList; ///
 
 ///
-string[] urls;
-
-bool addUrlToDatabase(string url) {
-    if(!validateUrl(url)) return false;
-    urls ~= url;
-    writeDatabase(urls);
-    return true;
+bool addLinkToDatabase(linkservice.models.Link link) {
+    if(!validateUrl(link.url)) return false;
+    return linksDb.insertLink(userId, link);
 }
 
 ///
-bool deleteUrlFromDatabase(int id) {
-    bool result = false;
-    try {
-        if(id < 0 || id >= urls.length) {
-            throw new Exception("Index out of range");
-        }
-        auto removedUrl = urls[id];
-        urls = remove(urls, id);
-        logInfo("Removed %s", removedUrl);
-        result = true;
-    } catch(Exception e) {
-        throw new HTTPStatusException(HTTPStatus.badRequest, "Could not delete URL. Invalid ID: " ~ to!string(id));
+bool addUrlToDatabase(long userId, string url) {
+    if(!validateUrl(url)) return false;
+    linkservice.models.Link  link;
+    link.url = url;
+    return linksDb.insertLink(userId, link);
+}
+
+///
+LinksList getLinksFromDatabase(long userId) {
+    return linksDb.readDatabase(userId);
+}
+
+///
+bool deleteUrlFromDatabase(long userId, long linkId) {
+    if(linkId < 0) {
+        const string errorMessage = format("Could not delete URL. Invalid ID: %d", linkId);
+        throw new HTTPStatusException(HTTPStatus.badRequest, errorMessage);
     }
-    writeDatabase(urls);
-    urls = readDatabase();
-    return result;
+
+    return linksDb.deleteLink(userId, linkId);
 }
 
 ///
@@ -73,13 +80,9 @@ bool validateUrl(string url) {
 }
 
 ///
-string logRequest(HTTPServerRequest req, HTTPServerResponse res) {
+string logRequest(HTTPServerRequest req) {
     logInfo("%s: %s", timeStamp(), req.toString());
-
-    bool logHeaders = false;
-    //logHeaders = true;
-
-    if(logHeaders) {
+    version(logHeaders) {
         auto headers = req.headers.toRepresentation();
         foreach(header; headers) {
             logInfo("%s: %s", header.key, header.value);
@@ -87,6 +90,16 @@ string logRequest(HTTPServerRequest req, HTTPServerResponse res) {
     }
 
     return "";
+}
+
+void debugfln(Char, A...)(in Char[] fmt, A args) {
+    debug {
+        writefln(fmt, args);
+    }
+}
+
+void errorfln(Char, A...)(in Char[] fmt, A args) {
+    writefln(fmt, args);
 }
 
 ///

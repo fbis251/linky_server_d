@@ -10,6 +10,7 @@ import vibe.utils.validation;
 import vibe.web.web;
 
 import linkservice.common;
+import linkservice.models;
 
 /// Aggregates all information about the currently logged in user (if any).
 struct UserSettings {
@@ -19,7 +20,7 @@ struct UserSettings {
 }
 
 /// The methods of this class will be mapped to HTTP routes and serve as request handlers.
-class LinkService {
+class LinkServiceWeb {
     private {
         // Type-safe and convenient access of user settings. This
         // SessionVar will store the contents of the variable in the
@@ -33,26 +34,22 @@ class LinkService {
     @auth
     @path("/") void getHome(string _authUser) {
         auto settings = m_userSettings;
-        render!("home.dt", urls, settings);
+        auto linksList = getLinksFromDatabase(userId).linksList;
+        render!("home.dt", linksList, settings);
     }
 
     @auth
-    void getDelete(string _authUser, int id) {
+    void getDelete(string _authUser, long linkId) {
         bool result = false;
 
         try {
-            if(id < 0 || id >= urls.length) {
+            if(linkId < 0) {
                 throw new Exception("Index out of range");
             }
-            auto removedUrl = urls[id];
-            urls = remove(urls, id);
-            logInfo("Removed %s", removedUrl);
-            result = true;
+            result = deleteUrlFromDatabase(userId, linkId);
         } catch(Exception e) {
-            throw new HTTPStatusException(HTTPStatus.badRequest, "Could not delete URL. Invalid ID: " ~ to!string(id));
+            throw new HTTPStatusException(HTTPStatus.badRequest, "Could not delete URL. Invalid ID: " ~ to!string(linkId));
         }
-        //writeDatabase(urls);
-        //urls = readDatabase();
 
         redirect("./");
     }
@@ -60,7 +57,7 @@ class LinkService {
     @auth
     void getSave(string _authUser, string url) {
         enforce(validateUrl(url), "Invalid URL");
-        addUrlToDatabase(url);
+        addUrlToDatabase(userId, url);
         redirect("./");
     }
 
@@ -79,7 +76,7 @@ class LinkService {
     // validation errors (ValidUsername).
     @errorDisplay!getLogin
     void postLogin(ValidUsername username, string password) {
-        enforce(checkPostLogin(username, password), "Invalid password.");
+        enforceHTTP(checkPostLogin(username, password), HTTPStatus.forbidden, "Invalid user name or password.");
 
         UserSettings s;
         s.loggedIn = true;
@@ -134,8 +131,8 @@ class LinkService {
     // redirects to the log in page otherwise (causing the actual request handler method
     // to be skipped).
     private string ensureAuth(scope HTTPServerRequest req, scope HTTPServerResponse res) {
-        if (!LinkService.m_userSettings.loggedIn) redirect("/login");
-        return LinkService.m_userSettings.userName;
+        if (!LinkServiceWeb.m_userSettings.loggedIn) redirect("/login");
+        return LinkServiceWeb.m_userSettings.userName;
     }
 
     // Adds support for using private member functions with "before". The ensureAuth method
