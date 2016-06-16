@@ -25,6 +25,7 @@ __dummy.html
 *.sublime-workspace
 
 # Project-specific files
+bin/
 link_saver
 private/
 *.tgz

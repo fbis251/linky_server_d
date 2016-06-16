@@ -5,6 +5,7 @@
     "authors": ["Fernando Barillas (fbis251)"],
     "homepage": "https://fernandobarillas.com",
     "license": "MIT",
+    "targetPath": "bin",
     "dependencies": {
         "vibe-d": "~>0.7.28",
         "botan:passhash": "~>1.12.5",
