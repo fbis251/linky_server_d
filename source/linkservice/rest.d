@@ -22,11 +22,11 @@ interface Api {
 
     @headerParam("_authToken", "Authorization")
     @path("/archive/:id")
-    Json getArchive(string _authToken, int _id, bool isArchived);
+    Json getArchive(string _authToken, long _id, bool isArchived);
 
     @headerParam("_authToken", "Authorization")
     @path("/delete/:id")
-    Json getDelete(string _authToken, int _id);
+    Json getDelete(string _authToken, long _id);
 
     @headerParam("_authToken", "Authorization")
     Json getList(string _authToken);
@@ -59,7 +59,7 @@ override:
         return serializeToJson(response);
     }
 
-    Json getDelete(string _authToken, int linkId) {
+    Json getDelete(string _authToken, long linkId) {
         checkAuthToken(_authToken);
         logInfo("Trying to delete ID: %d", linkId);
         SuccessResponse response;
@@ -67,7 +67,7 @@ override:
         return serializeToJson(response);
     }
 
-    Json getArchive(string _authToken, int linkId, bool isArchived) {
+    Json getArchive(string _authToken, long linkId, bool isArchived) {
         checkAuthToken(_authToken);
         logInfo("Trying to archive ID: %d", linkId);
         SuccessResponse response;
