@@ -29,7 +29,7 @@ class LinksDb {
         string query = format("SELECT * FROM LINKS WHERE %s = %d", COLUMN_USER_ID, userId);
         ResultRange results = sqliteDb.execute(query);
         foreach (Row row; results) {
-            Link rowLink = getRow(row);
+            Link rowLink = getLinkFromRow(row);
             debugfln("ID: %2d, USER: %2d, Timestamp: %s, Title: %s, URL: %s, Category: %s",
                     rowLink.linkId,
                     userId,
@@ -42,8 +42,27 @@ class LinksDb {
         return linksList;
     }
 
-    void writeDatabase(string[] urls) {
+    Link getLink(long userId, long linkId) {
+        // TODO: Perform validation for user etc
+        string query = format("SELECT * FROM %s WHERE %s = %d AND %s = %d;",
+            TABLE_NAME,
+            COLUMN_USER_ID,
+            userId,
+            COLUMN_LINK_ID,
+            linkId);
 
+        debugfln("Query: %s", query);
+
+        try {
+            ResultRange results = sqliteDb.execute(query);
+            foreach (Row row; results) {
+                return getLinkFromRow(row);
+            }
+        } catch (SqliteException e) {
+            errorfln("ERROR WHEN SELECTING LINK ", e.msg);
+        }
+
+        throw new LinkNotFoundException(format("Could not find Link with LinkId: %d", linkId));
     }
 
     bool deleteLink(long userId, long linkId) {
@@ -57,7 +76,7 @@ class LinksDb {
 
         try {
             Statement statement = sqliteDb.prepare(query);
-            statement.inject();
+            statement.execute();
             return true;
         } catch (SqliteException e) {
             errorfln("ERROR WHEN DELETING LINK ", e.msg);
@@ -66,8 +85,8 @@ class LinksDb {
         return false;
     }
 
-    bool insertLink(long userId, Link link) {
-        debugfln("Inserting: %s", link);
+    Link insertLink(long userId, Link link) {
+        debugfln("Inserting: %s", link.url);
         // Inserts will always ignore the link ID
         string insert = format("INSERT INTO %s (%s, %s, %s, %s)",
                                TABLE_NAME,
@@ -81,19 +100,47 @@ class LinksDb {
                                COLUMN_TITLE,
                                COLUMN_CATEGORY);
 
+        string query = "SELECT * FROM %s WHERE %s = last_insert_rowid();";
+        debugfln("Query: %s %s", insert, values);
         try {
-            Statement statement = sqliteDb.prepare(insert ~ values);
+            Statement statement = sqliteDb.prepare(insert ~ values ~ query);
             statement.inject(userId, link.url, link.title, link.category);
-            return true;
+            Link lastLink = getLastInsertedLink(userId);
+            debugfln("Last inserted link: %s", lastLink.url);
+            return lastLink;
         } catch (SqliteException e) {
             errorfln("ERROR WHEN INSERTING LINK ", e.msg);
         }
+        Link badLink;
+        badLink.linkId = INVALID_LINK_ID;
+        return badLink;
+    }
 
-        return false;
+    private Link getLastInsertedLink(long userId) {
+        debugfln("Getting last inserted link");
+        // TODO: Perform validation for user etc
+        string query = format("SELECT * FROM %s WHERE %s = %d AND %s = last_insert_rowid();",
+            TABLE_NAME,
+            COLUMN_USER_ID,
+            userId,
+            COLUMN_LINK_ID);
+
+        debugfln("Query: %s", query);
+
+        try {
+            ResultRange results = sqliteDb.execute(query);
+            foreach (Row row; results) {
+                return getLinkFromRow(row);
+            }
+        } catch (SqliteException e) {
+            errorfln("ERROR WHEN SELECTING LINK ", e.msg);
+        }
+
+        throw new LinkNotFoundException("Could not get last inserted Link");
     }
 
     /// Gets a Link from a database row result
-    private Link getRow(Row row) {
+    private Link getLinkFromRow(Row row) {
         Link link;
         link.linkId = row.peek!long(0);
         link.category = row[COLUMN_CATEGORY].as!string;
@@ -103,5 +150,11 @@ class LinksDb {
         link.isArchived = (row[COLUMN_IS_ARCHIVED].as!long != 0);
         link.isFavorite = (row[COLUMN_IS_FAVORITE].as!long != 0);
         return link;
+    }
+}
+
+class LinkNotFoundException : Exception {
+    this(string msg, string file = __FILE__, size_t line = __LINE__) {
+        super(msg, file, line);
     }
 }
