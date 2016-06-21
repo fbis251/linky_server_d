@@ -48,7 +48,7 @@ class LinkServiceWeb {
             }
             result = deleteUrlFromDatabase(userId, linkId);
         } catch(Exception e) {
-            throw new HTTPStatusException(HTTPStatus.badRequest, "Could not delete URL. Invalid ID: " ~ to!string(linkId));
+            throw new HTTPStatusException(HTTPStatus.badRequest, format("Could not delete URL. Invalid ID: %d", linkId));
         }
 
         redirect("./");

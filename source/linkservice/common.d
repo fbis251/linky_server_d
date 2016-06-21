@@ -10,22 +10,27 @@ import linkservice.utils.crypto;
 import linkservice.utils.linksdb;
 import linkservice.models;
 
+long INVALID_LINK_ID = -1;
 int userId = 0; /// TODO: change me to a real ID
 LinksDb linksDb; ///
 LinksList linksList; ///
 
 ///
-bool addLinkToDatabase(linkservice.models.Link link) {
-    if(!validateUrl(link.url)) return false;
+Link addLinkToDatabase(long userId, Link link) {
+    if(!validateUrl(link.url)) {
+        return getInvalidLink();
+    }
+
     return linksDb.insertLink(userId, link);
 }
 
 ///
 bool addUrlToDatabase(long userId, string url) {
     if(!validateUrl(url)) return false;
-    linkservice.models.Link  link;
+    Link  link;
     link.url = url;
-    return linksDb.insertLink(userId, link);
+    Link resultLink = linksDb.insertLink(userId, link);
+    return isLinkIdValid(resultLink);
 }
 
 ///
@@ -60,9 +65,21 @@ bool checkPostLogin(string username, string password) {
     return checkBcryptPassword(password);
 }
 
+/// Returns a Link with an invalid linkId, useful when returning an error
+Link getInvalidLink() {
+        Link badLink;
+        badLink.linkId = INVALID_LINK_ID;
+        return badLink;
+}
+
 ///
 string getUserRefreshToken(string username) {
     return getRefreshToken();
+}
+
+/// Checks whether or not the passed-in Link's linkId is invalid
+bool isLinkIdValid(Link link) {
+    return link.linkId != INVALID_LINK_ID;
 }
 
 ///
