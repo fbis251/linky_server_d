@@ -50,8 +50,8 @@ override:
 
     Json postLogin(string username, string password) {
         LoginResponse response;
-        response.success = checkPostLogin(username, password);
-        if(response.success) {
+        response.successful = checkPostLogin(username, password);
+        if(response.successful) {
             response.refreshToken = getUserRefreshToken(username);
             response.username = username;
         }
@@ -63,7 +63,7 @@ override:
         checkAuthToken(_authToken);
         logInfo("Trying to delete ID: %d", linkId);
         SuccessResponse response;
-        response.success = deleteUrlFromDatabase(userId, linkId);
+        response.successful = deleteUrlFromDatabase(userId, linkId);
         return serializeToJson(response);
     }
 
@@ -71,7 +71,7 @@ override:
         checkAuthToken(_authToken);
         logInfo("Trying to archive ID: %d", linkId);
         SuccessResponse response;
-        response.success = false;
+        response.successful = false;
         // TODO: Allow setting link.isArchived = isArchived
         return serializeToJson(response);
     }
