@@ -39,12 +39,11 @@ override:
     Json postAdd(string _authToken, Link link) {
         checkAuthToken(_authToken);
         enforce(validateUrl(link.url), "Invalid URL");
-        SuccessResponse response;
-
+        AddLinkResponse response;
         logInfo("Trying to add URL: %s", link.url);
-        response.success = addLinkToDatabase(link);
-        // TODO: Return the link object here instead
-        // response.link = getLinkFromDb(blah);
+        Link responseLink = addLinkToDatabase(userId, link);
+        response.successful = isLinkIdValid(responseLink);
+        response.link = responseLink;
         return serializeToJson(response);
     }
 
