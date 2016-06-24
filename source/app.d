@@ -10,14 +10,16 @@ import std.stdio;
 
 import d2sqlite3;
 import linkservice.utils.linksdb;
+import linkservice.utils.usersdb;
 import linkservice.common;
 import linkservice.rest;
 import linkservice.web;
 
 ///
 shared static this() {
-    auto db = Database("private/database.sqlite");
+    auto db = Database("private/link_saver.db");
     linksDb = new LinksDb(db);
+    usersDb = new UsersDb(db);
 
     auto router = new URLRouter;
 
