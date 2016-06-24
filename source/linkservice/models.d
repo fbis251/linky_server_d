@@ -40,4 +40,11 @@ struct SuccessResponse {
     bool successful; /// Whether or not the last request was successful
 }
 
+struct User {
+    ulong  userId;
+    string authToken;
+    ulong  createdTimestamp;
+    ulong  lastSync;
+    string passwordHash;
+    string username;
 }
