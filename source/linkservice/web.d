@@ -15,8 +15,7 @@ import linkservice.models;
 /// Aggregates all information about the currently logged in user (if any).
 struct UserSettings {
     bool loggedIn = false;
-    string userName;
-    bool someSetting;
+    User user = getInvalidUser(); /// Invalid User by default
 }
 
 /// The methods of this class will be mapped to HTTP routes and serve as request handlers.
@@ -34,7 +33,7 @@ class LinkServiceWeb {
     @auth
     @path("/") void getHome(string _authUser) {
         auto settings = m_userSettings;
-        auto linksList = getLinksFromDatabase(userId).linksList;
+        auto linksList = getLinksFromDatabase(getUserId()).linksList;
         render!("home.dt", linksList, settings);
     }
 
@@ -46,7 +45,7 @@ class LinkServiceWeb {
             if(linkId < 0) {
                 throw new Exception("Index out of range");
             }
-            result = deleteUrlFromDatabase(userId, linkId);
+            result = deleteLinkFromDatabase(getUserId(), linkId);
         } catch(Exception e) {
             throw new HTTPStatusException(HTTPStatus.badRequest, format("Could not delete URL. Invalid ID: %d", linkId));
         }
@@ -57,7 +56,7 @@ class LinkServiceWeb {
     @auth
     void getSave(string _authUser, string url) {
         enforce(validateUrl(url), "Invalid URL");
-        addUrlToDatabase(userId, url);
+        addUrlToDatabase(getUserId(), url);
         redirect("./");
     }
 
@@ -76,12 +75,14 @@ class LinkServiceWeb {
     // validation errors (ValidUsername).
     @errorDisplay!getLogin
     void postLogin(ValidUsername username, string password) {
-        enforceHTTP(checkPostLogin(username, password), HTTPStatus.forbidden, "Invalid user name or password.");
+        debugfln("postLogin() username: %s, password: %s", username, password);
+
+        User user = usersDb.getUser(username);
+        enforceHTTP(validateLogin(user, password), HTTPStatus.forbidden, "Invalid user name or password.");
 
         UserSettings s;
         s.loggedIn = true;
-        s.userName = username;
-        s.someSetting = false;
+        s.user = user;
         m_userSettings = s;
         redirect("./");
     }
@@ -109,19 +110,6 @@ class LinkServiceWeb {
         render!("error.dt", pageTitle, errorMessage, error, settings);
     }
 
-    // POST /settings
-    // Again uses the @auth custom attribute and @errorDisplay to render errors
-    // using the getSettings method.
-    @auth @errorDisplay!getSettings
-    void postSettings(bool some_setting, ValidUsername user_name, string _authUser) {
-        assert(m_userSettings.loggedIn);
-        UserSettings s = m_userSettings;
-        s.userName = user_name;
-        s.someSetting = some_setting;
-        m_userSettings = s;
-        redirect("./");
-    }
-
     // Defines the @auth attribute in terms of an @before annotation. @before causes
     // the given method (ensureAuth) to be called before the request handler is run.
     // It's return value will be passed to the "_authUser" parameter of the handler.
@@ -132,7 +120,11 @@ class LinkServiceWeb {
     // to be skipped).
     private string ensureAuth(scope HTTPServerRequest req, scope HTTPServerResponse res) {
         if (!LinkServiceWeb.m_userSettings.loggedIn) redirect("/login");
-        return LinkServiceWeb.m_userSettings.userName;
+        return LinkServiceWeb.m_userSettings.user.username;
+    }
+
+    private long getUserId() {
+        return m_userSettings.user.userId;
     }
 
     // Adds support for using private member functions with "before". The ensureAuth method
