@@ -5,6 +5,12 @@ struct LinksList {
     Link[] linksList; /// An array containing all the user's Links
 }
 
+/// A response for an Add request, indicating the success or failure of the add request
+struct AddLinkResponse {
+    bool successful; /// Whether or not the last request was successful
+    Link link; /// The Link that was just added, useful because it contains the unique linkId
+}
+
 /// A URL and its metadata such as title, timestamp, category, etc
 struct Link {
     ulong linkId;
@@ -34,8 +40,4 @@ struct SuccessResponse {
     bool successful; /// Whether or not the last request was successful
 }
 
-/// A response for an Add request, indicating the success or failure of the add request
-struct AddLinkResponse {
-    bool successful; /// Whether or not the last request was successful
-    Link link; /// The Link that was just added, useful because it contains the unique linkId
 }
