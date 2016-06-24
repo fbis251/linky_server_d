@@ -8,12 +8,13 @@ import vibe.http.router;
 
 import linkservice.utils.crypto;
 import linkservice.utils.linksdb;
+import linkservice.utils.usersdb;
 import linkservice.models;
 
 long INVALID_LINK_ID = -1;
-int userId = 0; /// TODO: change me to a real ID
-LinksDb linksDb; ///
-LinksList linksList; ///
+long INVALID_USER_ID = -1;
+LinksDb linksDb;     /// The links database
+UsersDb usersDb;     /// The users database
 
 ///
 Link addLinkToDatabase(long userId, Link link) {
@@ -49,32 +50,18 @@ bool deleteUrlFromDatabase(long userId, long linkId) {
 }
 
 ///
-void checkAuthToken(string authToken) {
-    logInfo("Checking Authorization header");
-    if(authToken == getRefreshToken()) {
-        logInfo("Valid authToken");
-        return;
-    }
-
-    // Invalid session
-    throw new HTTPStatusException(HTTPStatus.unauthorized, "Please log in");
-}
-
-///
 bool checkPostLogin(string username, string password) {
-    return checkBcryptPassword(password);
+    debugfln("username %s, password %s", username, password);
+    User user = usersDb.getUser(username);
+    if(!isUserIdValid(user)) return false;
+    return checkBcryptPassword(password, user.passwordHash);
 }
 
 /// Returns a Link with an invalid linkId, useful when returning an error
 Link getInvalidLink() {
-        Link badLink;
-        badLink.linkId = INVALID_LINK_ID;
-        return badLink;
-}
-
-///
-string getUserRefreshToken(string username) {
-    return getRefreshToken();
+    Link badLink;
+    badLink.linkId = INVALID_LINK_ID;
+    return badLink;
 }
 
 /// Checks whether or not the passed-in Link's linkId is invalid
@@ -82,9 +69,13 @@ bool isLinkIdValid(Link link) {
     return link.linkId != INVALID_LINK_ID;
 }
 
+/// Checks whether or not the passed-in Users's userId is invalid
+bool isUserIdValid(User user) {
+    return user.userId != INVALID_USER_ID;
+}
+
 ///
 void errorPage(HTTPServerRequest req, HTTPServerResponse res, HTTPServerErrorInfo error) {
-    //logRequest(req);
     string pageTitle = format("Error %d", error.code);
     string errorMessage = format("Error %d: %s", error.code, error.message);
     res.render!("error.dt", pageTitle, errorMessage);
