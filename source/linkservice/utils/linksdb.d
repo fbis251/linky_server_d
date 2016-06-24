@@ -6,24 +6,26 @@ import d2sqlite3;
 import linkservice.models;
 import linkservice.common;
 
-const static TABLE_NAME = "LINKS";
-const static COLUMN_LINK_ID = "LINK_ID";
-const static COLUMN_CATEGORY = "CATEGORY";
+const static TABLE_LINKS        = "LINKS";
+const static COLUMN_LINK_ID     = "LINK_ID";
+const static COLUMN_CATEGORY    = "CATEGORY";
 const static COLUMN_IS_ARCHIVED = "IS_ARCHIVED";
 const static COLUMN_IS_FAVORITE = "IS_FAVORITE";
-const static COLUMN_TIMESTAMP = "TIMESTAMP";
-const static COLUMN_TITLE = "TITLE";
-const static COLUMN_URL = "URL";
-const static COLUMN_USER_ID = "USER_ID";
+const static COLUMN_TIMESTAMP   = "TIMESTAMP";
+const static COLUMN_TITLE       = "TITLE";
+const static COLUMN_URL         = "URL";
+const static COLUMN_USER_ID     = "USER_ID";
 
 class LinksDb {
     Database sqliteDb;
 
     this(Database database){
+        debugfln("LinksDb()");
         sqliteDb = database;
     }
 
     LinksList readDatabase(long userId) {
+        debugfln("readDatabase(%d)", userId);
         LinksList linksList;
 
         string query = format("SELECT * FROM LINKS WHERE %s = %d", COLUMN_USER_ID, userId);
@@ -43,9 +45,10 @@ class LinksDb {
     }
 
     Link getLink(long userId, long linkId) {
-        // TODO: Perform validation for user etc
+        debugfln("getLink(%d, %d)", userId, linkId);
+
         string query = format("SELECT * FROM %s WHERE %s = %d AND %s = %d;",
-            TABLE_NAME,
+            TABLE_LINKS,
             COLUMN_USER_ID,
             userId,
             COLUMN_LINK_ID,
@@ -66,9 +69,10 @@ class LinksDb {
     }
 
     bool deleteLink(long userId, long linkId) {
-        // TODO: Perform validation for user etc
+        debugfln("deleteLink(%d, %d)", userId, linkId);
+
         string query = format("DELETE FROM %s WHERE %s = %d;",
-            TABLE_NAME,
+            TABLE_LINKS,
             COLUMN_LINK_ID,
             linkId);
 
@@ -86,10 +90,11 @@ class LinksDb {
     }
 
     Link insertLink(long userId, Link link) {
-        debugfln("Inserting: %s", link.url);
+        debugfln("insertLink(%d, %s)", userId, link.url);
+
         // Inserts will always ignore the link ID
         string insert = format("INSERT INTO %s (%s, %s, %s, %s)",
-                               TABLE_NAME,
+                               TABLE_LINKS,
                                COLUMN_USER_ID,
                                COLUMN_URL,
                                COLUMN_TITLE,
@@ -117,10 +122,10 @@ class LinksDb {
     }
 
     private Link getLastInsertedLink(long userId) {
-        debugfln("Getting last inserted link");
+        debugfln("getLastInsertedLink(%d)", userId);
         // TODO: Perform validation for user etc
         string query = format("SELECT * FROM %s WHERE %s = %d AND %s = last_insert_rowid();",
-            TABLE_NAME,
+            TABLE_LINKS,
             COLUMN_USER_ID,
             userId,
             COLUMN_LINK_ID);
