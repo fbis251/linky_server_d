@@ -23,12 +23,11 @@ string generateHash(const string plaintext) {
     return generateBcrypt(hash, *rng, WORK_FACTOR);
 }
 
-/// Generates 16 random bytes and returns the sha256 digest of them as a hex string
-string generateRefreshToken() {
+/// Generates a random 64-character hex string
+string generateAuthToken() {
     Unique!AutoSeededRNG rng = new AutoSeededRNG;
     ubyte[16] randomBytes;
     rng.randomize(randomBytes.ptr, randomBytes.length);
-    writeln(getSha256HexString(randomBytes));
     return getSha256HexString(randomBytes);
 }
 
