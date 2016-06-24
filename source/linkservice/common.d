@@ -16,7 +16,7 @@ long INVALID_USER_ID = -1;
 LinksDb linksDb;     /// The links database
 UsersDb usersDb;     /// The users database
 
-///
+/// Adds a Link to the database for the User with userId
 Link addLinkToDatabase(long userId, Link link) {
     if(!validateUrl(link.url)) {
         return getInvalidLink();
@@ -25,7 +25,7 @@ Link addLinkToDatabase(long userId, Link link) {
     return linksDb.insertLink(userId, link);
 }
 
-///
+/// Adds a URL into the database for the User with userId
 bool addUrlToDatabase(long userId, string url) {
     if(!validateUrl(url)) return false;
     Link  link;
@@ -34,13 +34,8 @@ bool addUrlToDatabase(long userId, string url) {
     return isLinkIdValid(resultLink);
 }
 
-///
-LinksList getLinksFromDatabase(long userId) {
-    return linksDb.readDatabase(userId);
-}
-
-///
-bool deleteUrlFromDatabase(long userId, long linkId) {
+/// Deletes a Link from the database
+bool deleteLinkFromDatabase(long userId, long linkId) {
     if(linkId < 0) {
         const string errorMessage = format("Could not delete URL. Invalid ID: %d", linkId);
         throw new HTTPStatusException(HTTPStatus.badRequest, errorMessage);
@@ -49,12 +44,16 @@ bool deleteUrlFromDatabase(long userId, long linkId) {
     return linksDb.deleteLink(userId, linkId);
 }
 
-///
-bool checkPostLogin(string username, string password) {
-    debugfln("username %s, password %s", username, password);
-    User user = usersDb.getUser(username);
-    if(!isUserIdValid(user)) return false;
-    return checkBcryptPassword(password, user.passwordHash);
+/// Renders an error page with the HTTP error message and code
+void errorPage(HTTPServerRequest req, HTTPServerResponse res, HTTPServerErrorInfo error) {
+    string pageTitle = format("Error %d", error.code);
+    string errorMessage = format("Error %d: %s", error.code, error.message);
+    res.render!("error.dt", pageTitle, errorMessage);
+}
+
+/// Gets all the stored Links for the user with userId from the database
+LinksList getLinksFromDatabase(long userId) {
+    return linksDb.readDatabase(userId);
 }
 
 /// Returns a Link with an invalid linkId, useful when returning an error
@@ -74,20 +73,33 @@ bool isUserIdValid(User user) {
     return user.userId != INVALID_USER_ID;
 }
 
-///
-void errorPage(HTTPServerRequest req, HTTPServerResponse res, HTTPServerErrorInfo error) {
-    string pageTitle = format("Error %d", error.code);
-    string errorMessage = format("Error %d: %s", error.code, error.message);
-    res.render!("error.dt", pageTitle, errorMessage);
+/// Checks that the User is valid and passwed-in password matches the User's stored passwordHash
+bool validateLogin(User user, string password) {
+    return isUserIdValid(user) && checkBcryptPassword(password, user.passwordHash);
 }
 
-///
+/// Validates a URL string to make sure it isn't null or empty
 bool validateUrl(string url) {
-    // TODO: URL validation is returning an HTTP 500 in web
     return (url != null || !strip(url).empty);
 }
 
-///
+//////////////////
+// Logging code //
+//////////////////
+
+/// Prints debugging messages to stdout. Messages will only be printed in debug version
+void debugfln(Char, A...)(in Char[] fmt, A args) {
+    debug {
+        writefln(fmt, args);
+    }
+}
+
+/// Prints error messages to stdout
+void errorfln(Char, A...)(in Char[] fmt, A args) {
+    writefln(fmt, args);
+}
+
+/// Logs an HTTP request to stdout
 string logRequest(HTTPServerRequest req) {
     logInfo("%s: %s", timeStamp(), req.toString());
     version(logHeaders) {
@@ -100,18 +112,8 @@ string logRequest(HTTPServerRequest req) {
     return "";
 }
 
-void debugfln(Char, A...)(in Char[] fmt, A args) {
-    debug {
-        writefln(fmt, args);
-    }
-}
-
-void errorfln(Char, A...)(in Char[] fmt, A args) {
-    writefln(fmt, args);
-}
-
-///
-auto timeStamp() {
+/// Returns a formatted timestamp string
+string timeStamp() {
     const auto currentTime = Clock.currTime();
 
     auto month = currentTime.month;
