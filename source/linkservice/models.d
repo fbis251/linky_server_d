@@ -30,9 +30,9 @@ struct LoginRequest {
 
 /// Sent to the client indicating the success of the login procedure, plus an authentication token
 struct LoginResponse {
-    bool successful;        /// Whether or not the login was successful
-    string refreshToken; /// The token a client should use when requesting a user's data
-    string username;     /// The username of the account that successfully authenticated
+    bool successful;  /// Whether or not the login was successful
+    string authToken; /// The token a client should use when requesting a user's data
+    string username;  /// The username of the account that successfully authenticated
 }
 
 /// A generic response indicating success or failure of the previous request
