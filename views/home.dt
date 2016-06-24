@@ -9,7 +9,7 @@ html
     body
         div
             p Logged in as:
-                b =settings.userName
+                b =settings.user.username
                 a(href="/logout") Log Out
 
         - int index = 1;
