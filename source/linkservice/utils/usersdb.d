@@ -43,7 +43,7 @@ class UsersDb {
             errorfln("ERROR WHEN SELECTING USER ", e.msg);
         }
 
-        return getBadUser();
+        return getInvalidUser();
     }
 
     /// Gets a user from the database that has the passed-in authentication token
@@ -66,14 +66,7 @@ class UsersDb {
             errorfln("ERROR WHEN SELECTING USER ", e.msg);
         }
 
-        return getBadUser();
-    }
-
-    /// Helper method that returns a user with an invalid user ID
-    private User getBadUser() {
-        User badUser;
-        badUser.userId = INVALID_USER_ID;
-        return badUser;
+        return getInvalidUser();
     }
 
     /// Gets a User object from a database row result

@@ -11,8 +11,8 @@ import linkservice.utils.linksdb;
 import linkservice.utils.usersdb;
 import linkservice.models;
 
-long INVALID_LINK_ID = -1;
-long INVALID_USER_ID = -1;
+const long INVALID_LINK_ID = -1;
+const long INVALID_USER_ID = -1;
 LinksDb linksDb;     /// The links database
 UsersDb usersDb;     /// The users database
 
@@ -61,6 +61,13 @@ Link getInvalidLink() {
     Link badLink;
     badLink.linkId = INVALID_LINK_ID;
     return badLink;
+}
+
+/// Returns a User with an invalid userId, useful when returning an error
+User getInvalidUser() {
+    User badUser;
+    badUser.userId = INVALID_USER_ID;
+    return badUser;
 }
 
 /// Checks whether or not the passed-in Link's linkId is invalid
