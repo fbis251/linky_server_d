@@ -34,9 +34,9 @@ class LinksDb {
         sqliteDb = database;
     }
 
-    LinksList readDatabase(long userId) {
+    Link[] readDatabase(long userId) {
         debugfln("readDatabase(%d)", userId);
-        LinksList linksList;
+        Link[] linksArray;
 
         string query = format("SELECT * FROM LINKS WHERE %s = %d", COLUMN_USER_ID, userId);
         ResultRange results = sqliteDb.execute(query);
@@ -49,9 +49,9 @@ class LinksDb {
                     rowLink.title,
                     rowLink.url,
                     rowLink.category);
-            linksList.linksList ~= rowLink;
+            linksArray ~= rowLink;
         }
-        return linksList;
+        return linksArray;
     }
 
     Link getLink(long userId, long linkId) {

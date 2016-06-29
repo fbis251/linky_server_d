@@ -52,7 +52,7 @@ void errorPage(HTTPServerRequest req, HTTPServerResponse res, HTTPServerErrorInf
 }
 
 /// Gets all the stored Links for the user with userId from the database
-LinksList getLinksFromDatabase(long userId) {
+Link[] getLinksFromDatabase(long userId) {
     return linksDb.readDatabase(userId);
 }
 

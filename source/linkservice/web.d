@@ -33,8 +33,8 @@ class LinkServiceWeb {
     @auth
     @path("/") void getHome(string _authUser) {
         auto settings = m_userSettings;
-        auto linksList = getLinksFromDatabase(getUserId()).linksList;
-        render!("home.dt", linksList, settings);
+        auto linksArray = getLinksFromDatabase(getUserId());
+        render!("home.dt", linksArray, settings);
     }
 
     @auth

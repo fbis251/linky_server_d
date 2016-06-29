@@ -1,10 +1,5 @@
 module linkservice.models;
 
-/// Represents a List/Array containing all the links a user has stored
-struct LinksList {
-    Link[] linksList; /// An array containing all the user's Links
-}
-
 /// A response for an Add request, indicating the success or failure of the add request
 struct AddLinkResponse {
     bool successful; /// Whether or not the last request was successful
@@ -33,11 +28,6 @@ struct LoginResponse {
     bool successful;  /// Whether or not the login was successful
     string authToken; /// The token a client should use when requesting a user's data
     string username;  /// The username of the account that successfully authenticated
-}
-
-/// A generic response indicating success or failure of the previous request
-struct SuccessResponse {
-    bool successful; /// Whether or not the last request was successful
 }
 
 struct User {

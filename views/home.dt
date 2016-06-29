@@ -14,8 +14,8 @@ html
 
         - int index = 1;
         - import std.stdio;
-        - if ( linksList.length > 0)
-            - foreach( link; linksList )
+        - if ( linksArray.length > 0)
+            - foreach( link; linksArray )
                 - string title = (link.title != null) ? link.title : link.url;
                 - string url = link.url;
                 - string deleteUrl = format("/delete?linkId=%d", link.linkId);
