@@ -17,12 +17,13 @@ import linkservice.web;
 
 ///
 shared static this() {
-    auto db = Database("private/link_saver.db");
+    string databasePath = "private/link_saver.db";
+    auto db = Database(databasePath);
     linksDb = new LinksDb(db);
     usersDb = new UsersDb(db);
+    logInfo("Database initialized %s", databasePath);
 
     auto router = new URLRouter;
-
     router
         .registerWebInterface(new LinkServiceWeb())
         .registerRestInterface(new LinkServiceRestApi())
@@ -30,8 +31,7 @@ shared static this() {
 
     auto routes = router.getAllRoutes();
     foreach(route; routes) {
-        debugfln("Method: %s", route.method);
-        debugfln("pattern: %s", route.pattern);
+        debugfln("%8s %s", route.method, route.pattern);
     }
 
     auto settings = new HTTPServerSettings();
