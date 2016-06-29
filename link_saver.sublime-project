@@ -3,6 +3,60 @@
 	[
 		{
 			"path": "."
+		},
+		{
+			"name": "vibe-d",
+			"path": "/home/fb/.dub/packages/vibe-d-0.7.28"
+		},
+		{
+			"name": "openssl",
+			"path": "/home/fb/.dub/packages/openssl-1.1.4_1.0.1g"
+		},
+		{
+			"name": "botan",
+			"path": "/home/fb/.dub/packages/botan-1.12.5"
+		},
+		{
+			"name": "memutils",
+			"path": "/home/fb/.dub/packages/memutils-0.4.6/memutils"
+		},
+		{
+			"name": "botan-math",
+			"path": "/home/fb/.dub/packages/botan-math-1.0.2"
+		},
+		{
+			"name": "libevent",
+			"path": "/home/fb/.dub/packages/libevent-2.0.1_2.0.16"
+		},
+		{
+			"name": "libasync",
+			"path": "/home/fb/.dub/packages/libasync-0.7.9"
+		},
+		{
+			"name": "libev",
+			"path": "/home/fb/.dub/packages/libev-5.0.0_4.04"
+		},
+		{
+			"name": "d2sqlite3",
+			"path": "/home/fb/.dub/packages/d2sqlite3-0.9.7/d2sqlite3"
 		}
-	]
+	],
+	"settings":
+	{
+		"include_paths":
+		[
+			"/home/fb/.dub/packages/libev-5.0.0_4.04/.",
+			"/home/fb/.dub/packages/libevent-2.0.1_2.0.16/.",
+			"/home/fb/.dub/packages/vibe-d-0.7.28/source/",
+			"/home/fb/.dub/packages/d2sqlite3-0.9.7/d2sqlite3/source/",
+			"/home/fb/.dub/packages/openssl-1.1.4_1.0.1g/.",
+			"/home/fb/Programming/d/link_saver/source/",
+			"/home/fb/.dub/packages/libasync-0.7.9/source/",
+			"/home/fb/.dub/packages/botan-math-1.0.2/source/",
+			"/home/fb/.dub/packages/botan-1.12.5/source/",
+			"/home/fb/.dub/packages/memutils-0.4.6/memutils/source/",
+			"/usr/include/dlang/dmd/"
+		],
+		"package_file": "/home/fb/Programming/d/link_saver/dub.json"
+	}
 }

@@ -17,7 +17,6 @@ bool checkBcryptPassword(const string password, const string storedHash) {
 string generateHash(const string plaintext) {
     // bcrypt has no support for NUL characters and passwords > 72 characters
     // Generate a sha384 hash of the plaintext and pass that to bcrypt to mitigate this
-    //auto hash = cast(string) plaintext.sha384Of;
     auto hash = getSha384HexString(plaintext);
     Unique!AutoSeededRNG rng = new AutoSeededRNG;
     return generateBcrypt(hash, *rng, WORK_FACTOR);

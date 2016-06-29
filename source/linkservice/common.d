@@ -1,9 +1,8 @@
 module linkservice.common;
 
-import std.algorithm, std.stdio, std.base64;
+import std.algorithm, std.array, std.format, std.stdio, std.string, std.base64;
 
 import d2sqlite3;
-import vibe.d;
 import vibe.http.router;
 
 import linkservice.utils.crypto;
@@ -126,30 +125,4 @@ void debugfln(Char, A...)(in Char[] fmt, A args) {
 /// Prints error messages to stdout
 void errorfln(Char, A...)(in Char[] fmt, A args) {
     writefln(fmt, args);
-}
-
-/// Logs an HTTP request to stdout
-string logRequest(HTTPServerRequest req) {
-    logInfo("%s: %s", timeStamp(), req.toString());
-    version(logHeaders) {
-        auto headers = req.headers.toRepresentation();
-        foreach(header; headers) {
-            logInfo("%s: %s", header.key, header.value);
-        }
-    }
-
-    return "";
-}
-
-/// Returns a formatted timestamp string
-string timeStamp() {
-    const auto currentTime = Clock.currTime();
-
-    auto month = currentTime.month;
-    auto day = currentTime.day;
-    auto hour = currentTime.hour;
-    auto minute = currentTime.minute;
-    auto second = currentTime.second;
-
-    return format("%d/%02d %02d:%02d:%02d", month, day, hour, minute, second);
 }
