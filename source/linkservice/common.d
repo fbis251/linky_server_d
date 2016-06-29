@@ -1,6 +1,6 @@
 module linkservice.common;
 
-import std.algorithm, std.stdio;
+import std.algorithm, std.stdio, std.base64;
 
 import d2sqlite3;
 import vibe.d;
@@ -68,6 +68,18 @@ User getInvalidUser() {
     User badUser;
     badUser.userId = INVALID_USER_ID;
     return badUser;
+}
+
+string getAuthTokenFromBasicHeader(string authHeader) {
+    string result = null;
+    string check = authHeader.replace("Basic ", "").replace("basic ", "");
+    string decoded = cast(string) Base64.decode(check);
+    debugfln("decoded: %s", decoded);
+    string[] parts = decoded.split(':');
+    if(parts.length == 2) {
+        result = parts[0];
+    }
+    return result;
 }
 
 /// Checks whether or not the passed-in Link's linkId is invalid
