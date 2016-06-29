@@ -16,6 +16,16 @@ const static COLUMN_TITLE       = "TITLE";
 const static COLUMN_URL         = "URL";
 const static COLUMN_USER_ID     = "USER_ID";
 
+// Column IDs, consult schema.sql for order
+const static ID_COLUMN_LINK_ID     = 0;
+const static ID_COLUMN_CATEGORY    = 1;
+const static ID_COLUMN_IS_ARCHIVED = 2;
+const static ID_COLUMN_IS_FAVORITE = 3;
+const static ID_COLUMN_TIMESTAMP   = 4;
+const static ID_COLUMN_TITLE       = 5;
+const static ID_COLUMN_URL         = 6;
+const static ID_COLUMN_USER_ID     = 7;
+
 class LinksDb {
     Database sqliteDb;
 
@@ -166,7 +176,7 @@ class LinksDb {
 
     private Link getLastInsertedLink(long userId) {
         debugfln("getLastInsertedLink(%d)", userId);
-        // TODO: Perform validation for user etc
+
         string query = format("SELECT * FROM %s WHERE %s = %d AND %s = last_insert_rowid();",
             TABLE_LINKS,
             COLUMN_USER_ID,
@@ -190,13 +200,13 @@ class LinksDb {
     /// Gets a Link from a database row result
     private Link getLinkFromRow(Row row) {
         Link link;
-        link.linkId = row.peek!long(0);
-        link.category = row[COLUMN_CATEGORY].as!string;
-        link.timestamp = row[COLUMN_TIMESTAMP].as!int;
-        link.title = row[COLUMN_TITLE].as!string;
-        link.url = row[COLUMN_URL].as!string;
-        link.isArchived = (row[COLUMN_IS_ARCHIVED].as!long != 0);
-        link.isFavorite = (row[COLUMN_IS_FAVORITE].as!long != 0);
+        link.linkId     = row.peek!long(ID_COLUMN_LINK_ID);
+        link.category   = row.peek!string(ID_COLUMN_CATEGORY);
+        link.isArchived = row.peek!long(ID_COLUMN_IS_ARCHIVED) != 0;
+        link.isFavorite = row.peek!long(ID_COLUMN_IS_FAVORITE) != 0;
+        link.timestamp  = row.peek!int(ID_COLUMN_TIMESTAMP);
+        link.title      = row.peek!string(ID_COLUMN_TITLE);
+        link.url        = row.peek!string(ID_COLUMN_URL);
         return link;
     }
 }
