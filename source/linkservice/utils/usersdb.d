@@ -37,12 +37,15 @@ class UsersDb {
         try {
             ResultRange results = sqliteDb.execute(query);
             foreach (Row row; results) {
-                return getUserFromRow(row);
+                User resultUser = getUserFromRow(row);
+                debugfln("getUser() username: %s", resultUser.username);
+                return resultUser;
             }
         } catch (SqliteException e) {
             errorfln("ERROR WHEN SELECTING USER ", e.msg);
         }
 
+        debugfln("getUser() User not found, returning invalid user");
         return getInvalidUser();
     }
 
@@ -60,12 +63,15 @@ class UsersDb {
         try {
             ResultRange results = sqliteDb.execute(query);
             foreach (Row row; results) {
-                return getUserFromRow(row);
+                User resultUser = getUserFromRow(row);
+                debugfln("getUserFromAuthToken() username: %s", resultUser.username);
+                return resultUser;
             }
         } catch (SqliteException e) {
             errorfln("ERROR WHEN SELECTING USER ", e.msg);
         }
 
+        debugfln("getUserFromAuthToken() User not found, returning invalid user");
         return getInvalidUser();
     }
 
