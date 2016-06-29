@@ -13,29 +13,53 @@ import core.time;
 import linkservice.common;
 import linkservice.models;
 
-@rootPathFromName
-interface Api {
-    @headerParam("_authToken", "Authorization")
-    Json postAdd(string _authToken, Link link);
+@path("/api/1")
+interface LinksRestApiV1 {
+
+
+    @headerParam("_basicAuth", "Authorization")
+    @path("links")
+    Json addLink(string _basicAuth, Link link);
+
+    @headerParam("_basicAuth", "Authorization")
+    @path("links/:linkId/archive")
+    void setArchiveLink(string _basicAuth, long _linkId);
+
+    @headerParam("_basicAuth", "Authorization")
+    @path("links/:linkId/archive")
+    void removeArchiveLink(string _basicAuth, long _linkId);
+
+    @headerParam("_basicAuth", "Authorization")
+    @path("links/:linkId")
+    void deleteLink(string _basicAuth, long _linkId);
+
+    @headerParam("_basicAuth", "Authorization")
+    @path("links/:linkId/favorite")
+    void setFavoriteLink(string _basicAuth, long _linkId);
+
+    @headerParam("_basicAuth", "Authorization")
+    @path("links/:linkId/favorite")
+    void removeFavoriteLink(string _basicAuth, long _linkId);
 
     Json postLogin(string username, string password);
 
-    @headerParam("_authToken", "Authorization")
-    @path("/archive/:id")
-    Json getArchive(string _authToken, long _id, bool isArchived);
+    @headerParam("_basicAuth", "Authorization")
+    @path("links/:linkId")
+    Json putUpdateLink(string _basicAuth, long _linkId, Link link);
 
-    @headerParam("_authToken", "Authorization")
-    @path("/delete/:id")
-    Json getDelete(string _authToken, long _id);
-
-    @headerParam("_authToken", "Authorization")
-    Json getList(string _authToken);
+    @headerParam("_basicAuth", "Authorization")
+    Json getLinks(string _basicAuth);
 }
 
-///
-class LinkServiceRestApi : Api {
+/// Version 1 of the Link Saver Rest API
+class LinkServiceRestApi : LinksRestApiV1 {
 
-    User getUserFromAuthToken(string authToken) {
+    private User getUserFromAuthToken(string basicAuth) {
+        debugfln("getUserFromAuthToken() basicAuth = %s", basicAuth);
+        string authToken = getAuthTokenFromBasicHeader(basicAuth);
+        if(authToken == null || authToken.empty) {
+            throw new HTTPStatusException(HTTPStatus.unauthorized, "Please log in");
+        }
         User user = usersDb.getUserFromAuthToken(authToken);
         if(!isUserIdValid(user)) {
             throw new HTTPStatusException(HTTPStatus.unauthorized, "Please log in");
@@ -44,19 +68,66 @@ class LinkServiceRestApi : Api {
     }
 
 override:
-    Json postAdd(string _authToken, Link link) {
-        logInfo("POST /add");
-        debugfln("postAdd() link.title = %s, link.url = %s", link.title, link.url);
+    Json addLink(string _basicAuth, Link link) {
+        logInfo("POST /links");
+        debugfln("addLink() link.title = %s, link.url = %s", link.title, link.url);
+
+        User user = getUserFromAuthToken(_basicAuth);
         enforce(validateUrl(link.url), "Invalid URL");
-
-        User user = getUserFromAuthToken(_authToken);
-        AddLinkResponse response;
-
         debugfln("Trying to add URL: %s", link.url);
+
         Link responseLink = addLinkToDatabase(user.userId, link);
+        debugfln("Link add successful? %d, link ID: %d", isLinkIdValid(responseLink), responseLink.linkId);
+        AddLinkResponse response;
         response.successful = isLinkIdValid(responseLink);
         response.link = responseLink;
         return serializeToJson(response);
+    }
+
+    void setArchiveLink(string _basicAuth, long linkId) {
+        logInfo("PUT /links/%d/archive", linkId);
+
+        User user = getUserFromAuthToken(_basicAuth);
+        if(!archiveLink(user.userId, linkId, true)) {
+            throw new HTTPStatusException(HTTPStatus.notFound, "Could not archive link");
+        }
+    }
+
+    void removeArchiveLink(string _basicAuth, long linkId) {
+        logInfo("DELETE /links/%d/archive", linkId);
+
+        User user = getUserFromAuthToken(_basicAuth);
+        if(!archiveLink(user.userId, linkId, false)) {
+            throw new HTTPStatusException(HTTPStatus.notFound, "Could not unarchive link");
+        }
+    }
+
+    void deleteLink(string _basicAuth, long linkId) {
+        logInfo("GET /delete/%d", linkId);
+        debugfln("getDelete() linkId = %d", linkId);
+
+        User user = getUserFromAuthToken(_basicAuth);
+        if(!deleteLinkFromDatabase(user.userId, linkId)) {
+            throw new HTTPStatusException(HTTPStatus.notFound, "Could not delete link");
+        }
+    }
+
+    void setFavoriteLink(string _basicAuth, long linkId) {
+        logInfo("PUT /links/%d/favorite", linkId);
+
+        User user = getUserFromAuthToken(_basicAuth);
+        if(!favoriteLink(user.userId, linkId, true)) {
+            throw new HTTPStatusException(HTTPStatus.notFound, "Could not favorite link");
+        }
+    }
+
+    void removeFavoriteLink(string _basicAuth, long linkId) {
+        logInfo("DELETE /links/%d/favorite", linkId);
+
+        User user = getUserFromAuthToken(_basicAuth);
+        if(!favoriteLink(user.userId, linkId, false)) {
+            throw new HTTPStatusException(HTTPStatus.notFound, "Could not unfavorite link");
+        }
     }
 
     Json postLogin(string username, string password) {
@@ -76,35 +147,19 @@ override:
         return serializeToJson(response);
     }
 
-    Json getArchive(string _authToken, long linkId, bool isArchived) {
-        logInfo("GET /archived/%d?isArchived=%d", linkId, isArchived);
-        debugfln("getDelete() linkId = %d, isArchived = %d", linkId, isArchived);
-
-        User user = getUserFromAuthToken(_authToken);
-        SuccessResponse response;
-        response.successful = false;
-        // TODO: Allow setting link.isArchived = isArchived
+    Json putUpdateLink(string _basicAuth, long linkId, Link link) {
+        LoginResponse response;
         return serializeToJson(response);
     }
 
-    Json getDelete(string _authToken, long linkId) {
-        logInfo("GET /delete/%d", linkId);
-        debugfln("getDelete() linkId = %d", linkId);
+    Json getLinks(string _basicAuth) {
+        logInfo("GET /links");
 
-        User user = getUserFromAuthToken(_authToken);
-        SuccessResponse response;
-        response.successful = deleteLinkFromDatabase(user.userId, linkId);
-        return serializeToJson(response);
-    }
+        User user = getUserFromAuthToken(_basicAuth);
 
-    Json getList(string _authToken) {
-        logInfo("GET /list");
+        Link[] linksArray = getLinksFromDatabase(user.userId);
+        logInfo("User:%s, URL count: %d", user.username, linksArray.length);
 
-        User user = getUserFromAuthToken(_authToken);
-
-        LinksList linksList = getLinksFromDatabase(user.userId);
-        logInfo("User:%s, URL count: %d", user.username, linksList.linksList.length);
-
-        return serializeToJson(linksList);
+        return serializeToJson(linksArray);
     }
 }
