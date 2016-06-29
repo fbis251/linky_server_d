@@ -121,6 +121,49 @@ class LinksDb {
         return badLink;
     }
 
+    bool setArchived(long userId, long linkId, bool isArchived) {
+        debugfln("setArchived(%d, %d, %s)", userId, linkId, isArchived ? "true" : "false");
+        return setFavoriteOrArchived(userId, linkId, isArchived, true);
+    }
+
+    bool setFavorite(long userId, long linkId, bool isFavorite) {
+        debugfln("setFavorite(%d, %d, %s)", userId, linkId, isFavorite ? "true" : "false");
+        return setFavoriteOrArchived(userId, linkId, isFavorite, false);
+    }
+
+    private bool setFavoriteOrArchived(long userId, long linkId, bool columnValue, bool setArchived) {
+        debugfln("setFavoriteOrArchived(%d, %d, %s, %s)",
+                 userId,
+                 linkId,
+                 columnValue ? "true" : "false",
+                 setArchived ? "true" : "false");
+
+        string query = format("UPDATE %s SET %s = %d WHERE %s = %d AND %s = %d;",
+            TABLE_LINKS,
+            setArchived ? COLUMN_IS_ARCHIVED : COLUMN_IS_FAVORITE,
+            columnValue ? 1 : 0,
+            COLUMN_USER_ID,
+            userId,
+            COLUMN_LINK_ID,
+            linkId);
+
+        debugfln("Query: %s", query);
+
+        int previousChangeCount = sqliteDb.totalChanges;
+        try {
+            Statement statement = sqliteDb.prepare(query);
+            statement.execute();
+            // If the query was successful the total change count will be increased
+            bool result = sqliteDb.totalChanges > previousChangeCount;
+            debugfln("Result: %s", result ? "true" : "false");
+            return result;
+        } catch (SqliteException e) {
+            errorfln("ERROR WHEN SETTING FAVORITE ON LINK ", e.msg);
+        }
+
+        return false;
+    }
+
     private Link getLastInsertedLink(long userId) {
         debugfln("getLastInsertedLink(%d)", userId);
         // TODO: Perform validation for user etc
