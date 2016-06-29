@@ -11,8 +11,8 @@ import linkservice.utils.linksdb;
 import linkservice.utils.usersdb;
 import linkservice.models;
 
-const long INVALID_LINK_ID = -1;
-const long INVALID_USER_ID = -1;
+const long INVALID_LINK_ID = 0;
+const long INVALID_USER_ID = 0;
 LinksDb linksDb;     /// The links database
 UsersDb usersDb;     /// The users database
 
@@ -34,6 +34,11 @@ bool addUrlToDatabase(long userId, string url) {
     return isLinkIdValid(resultLink);
 }
 
+/// Updates the archived status of a Link
+bool archiveLink(long userId, long linkId, bool isArchived) {
+    return linksDb.setArchived(userId, linkId, isArchived);
+}
+
 /// Deletes a Link from the database
 bool deleteLinkFromDatabase(long userId, long linkId) {
     if(linkId < 0) {
@@ -49,6 +54,11 @@ void errorPage(HTTPServerRequest req, HTTPServerResponse res, HTTPServerErrorInf
     string pageTitle = format("Error %d", error.code);
     string errorMessage = format("Error %d: %s", error.code, error.message);
     res.render!("error.dt", pageTitle, errorMessage);
+}
+
+/// Updates the favorite status of a Link
+bool favoriteLink(long userId, long linkId, bool isFavorite) {
+    return linksDb.setFavorite(userId, linkId, isFavorite);
 }
 
 /// Gets all the stored Links for the user with userId from the database
@@ -84,12 +94,12 @@ string getAuthTokenFromBasicHeader(string authHeader) {
 
 /// Checks whether or not the passed-in Link's linkId is invalid
 bool isLinkIdValid(Link link) {
-    return link.linkId != INVALID_LINK_ID;
+    return link.linkId > INVALID_LINK_ID;
 }
 
 /// Checks whether or not the passed-in Users's userId is invalid
 bool isUserIdValid(User user) {
-    return user.userId != INVALID_USER_ID;
+    return user.userId > INVALID_USER_ID;
 }
 
 /// Checks that the User is valid and passwed-in password matches the User's stored passwordHash
