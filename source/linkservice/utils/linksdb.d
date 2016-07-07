@@ -141,6 +141,41 @@ class LinksDb {
         return setFavoriteOrArchived(userId, linkId, isFavorite, false);
     }
 
+    Link updateLink(long userId, Link link) {
+        debugfln("updateLink(%d, %d)", userId, link.linkId);
+
+        string update = format("UPDATE %s SET %s = :%s, %s = :%s, %s = :%s, %s = :%s, %s = :%s WHERE %s = %d AND %s = %d;",
+                               TABLE_LINKS,
+                               COLUMN_CATEGORY,
+                               COLUMN_CATEGORY,
+                               COLUMN_IS_ARCHIVED,
+                               COLUMN_IS_ARCHIVED,
+                               COLUMN_IS_FAVORITE,
+                               COLUMN_IS_FAVORITE,
+                               COLUMN_TITLE,
+                               COLUMN_TITLE,
+                               COLUMN_URL,
+                               COLUMN_URL,
+                               COLUMN_USER_ID,
+                               userId,
+                               COLUMN_LINK_ID,
+                               link.linkId);
+
+        debugfln("Query: %s", update);
+        try {
+            Statement statement = sqliteDb.prepare(update);
+            statement.inject(link.category, link.isArchived, link.isFavorite, link.title, link.url);
+            Link updatedLink = getLink(userId, link.linkId);
+            debugfln("Updated Link title: %s, url: %s", updatedLink.title, updatedLink.url);
+            return updatedLink;
+        } catch (SqliteException e) {
+            errorfln("ERROR WHEN UPDATING LINK ", e.msg);
+        }
+        Link badLink;
+        badLink.linkId = INVALID_LINK_ID;
+        return badLink;
+    }
+
     private bool setFavoriteOrArchived(long userId, long linkId, bool columnValue, bool setArchived) {
         debugfln("setFavoriteOrArchived(%d, %d, %s, %s)",
                  userId,

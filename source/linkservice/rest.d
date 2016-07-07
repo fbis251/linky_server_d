@@ -148,7 +148,22 @@ override:
     }
 
     Json putUpdateLink(string _basicAuth, long linkId, Link link) {
-        LoginResponse response;
+        logInfo("PUT /links/%d", linkId);
+
+        User user = getUserFromAuthToken(_basicAuth);
+        enforce(validateUrl(link.url), "Invalid URL");
+        debugfln("Trying to update URL: %s", link.url);
+
+        Link responseLink = updateLinkInDatabase(user.userId, link);
+        debugfln("Link update successful? %d, link ID: %d", isLinkIdValid(responseLink), responseLink.linkId);
+
+        if(!isLinkIdValid(responseLink)) {
+            throw new HTTPStatusException(HTTPStatus.notFound, "Could not unarchive link");
+        }
+
+        AddLinkResponse response;
+        response.successful = isLinkIdValid(responseLink);
+        response.link = responseLink;
         return serializeToJson(response);
     }
 

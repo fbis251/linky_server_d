@@ -101,6 +101,15 @@ bool isUserIdValid(User user) {
     return user.userId > INVALID_USER_ID;
 }
 
+/// Updates the Link data in the database
+Link updateLinkInDatabase(long userId, Link link) {
+    if(!validateUrl(link.url)) {
+        return getInvalidLink();
+    }
+
+    return linksDb.updateLink(userId, link);
+}
+
 /// Checks that the User is valid and passwed-in password matches the User's stored passwordHash
 bool validateLogin(User user, string password) {
     return isUserIdValid(user) && checkBcryptPassword(password, user.passwordHash);
