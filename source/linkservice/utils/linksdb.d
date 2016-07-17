@@ -81,10 +81,12 @@ class LinksDb {
     bool deleteLink(long userId, long linkId) {
         debugfln("deleteLink(%d, %d)", userId, linkId);
 
-        string query = format("DELETE FROM %s WHERE %s = %d;",
+        string query = format("DELETE FROM %s WHERE %s = %d AND %s = %d;",
             TABLE_LINKS,
             COLUMN_LINK_ID,
-            linkId);
+            linkId,
+            COLUMN_USER_ID,
+            userId);
 
         debugfln("Query: %s", query);
 
