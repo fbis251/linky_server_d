@@ -58,7 +58,7 @@ class LinkServiceRestApi : LinksRestApiV1 {
         debugfln("getUserFromAuthToken() basicAuth = %s", basicAuth);
         string authToken = getAuthTokenFromBasicHeader(basicAuth);
         if(authToken == null || authToken.empty) {
-            throw new HTTPStatusException(HTTPStatus.unauthorized, "Please log in");
+            throw new HTTPStatusException(HTTPStatus.forbidden, "Please log in");
         }
         User user = usersDb.getUserFromAuthToken(authToken);
         if(!isUserIdValid(user)) {
@@ -78,6 +78,11 @@ override:
 
         Link responseLink = addLinkToDatabase(user.userId, link);
         debugfln("Link add successful? %d, link ID: %d", isLinkIdValid(responseLink), responseLink.linkId);
+
+        if(!isLinkIdValid(responseLink)) {
+            throw new HTTPStatusException(HTTPStatus.notFound, "Could not add link");
+        }
+
         AddLinkResponse response;
         response.successful = isLinkIdValid(responseLink);
         response.link = responseLink;
