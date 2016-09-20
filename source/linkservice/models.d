@@ -25,14 +25,14 @@ struct LoginRequest {
 
 /// Sent to the client indicating the success of the login procedure, plus an authentication token
 struct LoginResponse {
-    bool successful;  /// Whether or not the login was successful
-    string authToken; /// The token a client should use when requesting a user's data
-    string username;  /// The username of the account that successfully authenticated
+    long userId;       /// The user ID of the account that successfully authenticated
+    string authString; /// The authentication string a client should use when requesting a user's data
+    string username;   /// The username of the account that successfully authenticated
 }
 
 struct User {
     ulong  userId;
-    string authToken;
+    string authKey;
     ulong  createdTimestamp;
     ulong  lastSync;
     string passwordHash;
