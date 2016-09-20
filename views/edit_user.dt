@@ -9,11 +9,12 @@ html
         - css("common");
     body
         .material-form
-            h1 =title
-            p Your username:
-                b =user.username
+            h2 =title
+            - if ( errorMessage != null )
+                .error(align='center')
+                    b =errorMessage
             p Your current password is needed in order to edit your profile
-            form(action='/update_user', method='post')
+            form(action='/user/edit/', method='post')
                 input(type='password', name='currentPassword', placeholder='Current Password')
                 br
                 input(type='password', name='newPassword', placeholder='New Password')
@@ -22,5 +23,8 @@ html
                 label
                     input(type='checkbox', name='forceClientLogout')
                     | Force Android Client Logout
+                br
                 div(align='right')
+                    a(href='/')
+                        input(type='button', value='Cancel')
                     input(type='submit', value='Update User')

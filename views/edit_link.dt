@@ -9,12 +9,15 @@ html
         - css("common");
     body
         .material-form
-            h1 =title
-            form(action='/update', method='post')
+            h2 =title
+            - if ( errorMessage != null )
+                .error(align='center')
+                    b =errorMessage
+            form(action='/link/edit/', method='post')
                 input(type='hidden', name='linkId', value='#{link.linkId}')
-                input(type='text', name='title', placeholder='Link Title', value='#{link.title}')
+                input(type='text', name='title', maxlength='100', placeholder='Link Title', value='#{link.title}')
                 input(type='url', name='url', placeholder='http://example.com', value='#{link.url}')
-                input(type='text', name='category', placeholder='Category', value='#{link.category}')
+                input(type='text', name='category', maxlength='50', placeholder='Category', value='#{link.category}')
                 label
                     input(type='checkbox', name='archived', checked=(link.isArchived))
                     | Archived
@@ -23,4 +26,6 @@ html
                     | Favorite
                 br
                 div(align='right')
+                    a(href='/')
+                        input(type='button', value='Cancel')
                     input(type='submit', value='Update Link')
