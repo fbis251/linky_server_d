@@ -7,9 +7,9 @@
     "license": "MIT",
     "targetPath": "bin",
     "dependencies": {
-        "vibe-d": "~>0.7.28",
-        "botan:passhash": "~>1.12.5",
-        "d2sqlite3": "~>0.9.7"
+        "d2sqlite3": "~>0.9.7",
+        "sodium": "~>0.0.8",
+        "vibe-d": "~>0.7.29"
     },
-    "versions": ["VibeDefaultMain", "logHeaders"],
+    "versions": ["VibeDefaultMain"]
 }
