@@ -54,6 +54,32 @@ class LinksDb {
         return linksArray;
     }
 
+    Link[] getCategoryLinks(long userId, string category) {
+        debugfln("readDatabase(%d)", userId);
+        Link[] linksArray;
+
+        // TODO: The string below should not be bound here, is there a way to use binding to prevent sql attacks?
+        string query = format("SELECT * FROM %s WHERE %s = %d AND %s = %s;",
+            TABLE_LINKS,
+            COLUMN_USER_ID,
+            userId,
+            COLUMN_CATEGORY,
+            category);
+        ResultRange results = sqliteDb.execute(query);
+        foreach (Row row; results) {
+            Link rowLink = getLinkFromRow(row);
+            debugfln("ID: %2d, USER: %2d, Timestamp: %s, Title: %s, URL: %s, Category: %s",
+                    rowLink.linkId,
+                    userId,
+                    SysTime(unixTimeToStdTime(rowLink.timestamp)),
+                    rowLink.title,
+                    rowLink.url,
+                    rowLink.category);
+            linksArray ~= rowLink;
+        }
+        return linksArray;
+    }
+
     Link getLink(long userId, long linkId) {
         debugfln("getLink(%d, %d)", userId, linkId);
 
@@ -72,7 +98,7 @@ class LinksDb {
                 return getLinkFromRow(row);
             }
         } catch (SqliteException e) {
-            errorfln("ERROR WHEN SELECTING LINK ", e.msg);
+            errorfln("ERROR WHEN SELECTING LINK, error: %s", e.msg);
         }
 
         throw new LinkNotFoundException(format("Could not find Link with LinkId: %d", linkId));
@@ -95,7 +121,7 @@ class LinksDb {
             statement.execute();
             return true;
         } catch (SqliteException e) {
-            errorfln("ERROR WHEN DELETING LINK ", e.msg);
+            errorfln("ERROR WHEN DELETING LINK, error: %s", e.msg);
         }
 
         return false;
@@ -126,7 +152,7 @@ class LinksDb {
             debugfln("Last inserted link: %s", lastLink.url);
             return lastLink;
         } catch (SqliteException e) {
-            errorfln("ERROR WHEN INSERTING LINK ", e.msg);
+            errorfln("ERROR WHEN INSERTING LINK, error: %s", e.msg);
         }
         Link badLink;
         badLink.linkId = INVALID_LINK_ID;
@@ -171,7 +197,7 @@ class LinksDb {
             debugfln("Updated Link title: %s, url: %s", updatedLink.title, updatedLink.url);
             return updatedLink;
         } catch (SqliteException e) {
-            errorfln("ERROR WHEN UPDATING LINK ", e.msg);
+            errorfln("ERROR WHEN UPDATING LINK, error: %s", e.msg);
         }
         Link badLink;
         badLink.linkId = INVALID_LINK_ID;
@@ -205,7 +231,7 @@ class LinksDb {
             debugfln("Result: %s", result ? "true" : "false");
             return result;
         } catch (SqliteException e) {
-            errorfln("ERROR WHEN SETTING FAVORITE ON LINK ", e.msg);
+            errorfln("ERROR WHEN SETTING FAVORITE ON LINK, error: %s", e.msg);
         }
 
         return false;
@@ -228,7 +254,7 @@ class LinksDb {
                 return getLinkFromRow(row);
             }
         } catch (SqliteException e) {
-            errorfln("ERROR WHEN SELECTING LINK ", e.msg);
+            errorfln("ERROR WHEN SELECTING LINK, error: %s", e.msg);
         }
 
         throw new LinkNotFoundException("Could not get last inserted Link");
