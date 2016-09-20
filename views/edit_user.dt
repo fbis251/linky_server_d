@@ -1,0 +1,26 @@
+- string title = "Edit Your Profile";
+- void css(string file)
+    link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
+
+doctype html
+html
+    head
+        title =title
+        - css("common");
+    body
+        .material-form
+            h1 =title
+            p Your username:
+                b =user.username
+            p Your current password is needed in order to edit your profile
+            form(action='/update_user', method='post')
+                input(type='password', name='currentPassword', placeholder='Current Password')
+                br
+                input(type='password', name='newPassword', placeholder='New Password')
+                input(type='password', name='repeatedNewPassword', placeholder='Repeat Password')
+                br
+                label
+                    input(type='checkbox', name='forceClientLogout')
+                    | Force Android Client Logout
+                div(align='right')
+                    input(type='submit', value='Update User')

@@ -1,0 +1,26 @@
+- string title = "Edit Saved Link";
+- void css(string file)
+    link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
+
+doctype html
+html
+    head
+        title =title
+        - css("common");
+    body
+        .material-form
+            h1 =title
+            form(action='/update', method='post')
+                input(type='hidden', name='linkId', value='#{link.linkId}')
+                input(type='text', name='title', placeholder='Link Title', value='#{link.title}')
+                input(type='url', name='url', placeholder='http://example.com', value='#{link.url}')
+                input(type='text', name='category', placeholder='Category', value='#{link.category}')
+                label
+                    input(type='checkbox', name='archived', checked=(link.isArchived))
+                    | Archived
+                label
+                    input(type='checkbox', name='favorite', checked=(link.isFavorite))
+                    | Favorite
+                br
+                div(align='right')
+                    input(type='submit', value='Update Link')

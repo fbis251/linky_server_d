@@ -1,7 +1,8 @@
-doctype html
+- import std.datetime;
 - void css(string file)
     link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
 
+doctype html
 html
     head
         title Saved Links
@@ -10,19 +11,45 @@ html
         div
             p Logged in as:
                 b =settings.user.username
+                a(href="/edit_user") Edit Profile
                 a(href="/logout") Log Out
 
         - int index = 1;
         - import std.stdio;
         - if ( linksArray.length > 0)
-            - foreach( link; linksArray )
-                - string title = (link.title != null) ? link.title : link.url;
-                - string url = link.url;
-                - string deleteUrl = format("/delete?linkId=%d", link.linkId);
-                div
-                    a.delete(href=deleteUrl)[x]
-                    b =index
-                    a(href=url,target="_blank")=title
-                - index++;
+            table
+                tr
+                    th #
+                    th Delete
+                    th Edit
+                    th ♥/♡
+                    th Title
+                    th Category
+                    th Date
+                - foreach( link; linksArray )
+                    - string deleteUrl = format("/delete?linkId=%d", link.linkId);
+                    - string editUrl = format("/edit?linkId=%d", link.linkId);
+                    - string favorite = link.isFavorite ? "♥" : "♡";
+                    - string url = link.url;
+                    - string title = (link.title != null) ? link.title : link.url;
+                    - string category = link.category;
+                    - auto time = SysTime(unixTimeToStdTime(link.timestamp));
+                    - string timeString = format("%s %s", time.month, time.day);
+                    tr
+                        td
+                            =index
+                        td
+                            a.delete(href=deleteUrl)[x]
+                        td
+                            a(href=editUrl)Edit
+                        td
+                            =favorite
+                        td
+                            a(href=url,target="_blank")=title
+                        td
+                            =category
+                        td
+                            =timeString
+                    - index++;
         - else
             p No URLs saved

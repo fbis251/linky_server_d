@@ -1,21 +1,21 @@
+- string title = "Link Saver Login";
 doctype html
 - void css(string file)
     link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
 
 html
     head
-        title Link Saver Login
+        title =title
         - css("common");
     body
+        h1(align='center') =title
         - if ( errorMessage != null )
-            div
+            h2(align='center')
                 b =errorMessage
-        form(action="/login",method="post")
-            div
-                input(name="username")
-                b Username
-            div
-                input(name="password",type="password")
-                b Password
-            div
-                input(type="submit",value="submit")
+        .material-form
+            form(action="/login",method="post")
+                input(name="username", type="text", placeholder='Username', autofocus)
+                input(name="password", type="password", placeholder='Password')
+                br
+                div(align='right')
+                    input(type="submit", value="Log In")
