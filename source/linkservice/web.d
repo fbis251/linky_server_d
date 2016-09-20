@@ -1,6 +1,6 @@
 module linkservice.web;
 
-import std.algorithm, std.array, std.stdio, std.format, std.conv;
+import std.algorithm, std.array, std.conv, std.format, std.stdio, std.string;
 import std.exception : enforce;
 import vibe.core.log;
 import vibe.http.fileserver;
@@ -31,13 +31,17 @@ class LinkServiceWeb {
 
     // overrides the path that gets inferred from the method name to
     @auth
-    @path("/") void getHome(string _authUser) {
+    @path("/")
+    void getHome(string _authUser, string _error) {
         auto settings = m_userSettings;
+        string errorMessage = _error;
         auto linksArray = getLinksFromDatabase(getUserId());
-        render!("home.dt", linksArray, settings);
+        reverse(linksArray);
+        render!("home.dt", linksArray, settings, errorMessage);
     }
 
     @auth
+    @path("/link/delete")
     void getDelete(string _authUser, long linkId) {
         bool result = false;
 
@@ -50,14 +54,115 @@ class LinkServiceWeb {
             throw new HTTPStatusException(HTTPStatus.badRequest, format("Could not delete URL. Invalid ID: %d", linkId));
         }
 
-        redirect("./");
+        redirect("/");
     }
 
     @auth
+    @errorDisplay!getHome
+    @path("/link/edit")
+    void getEditLink(string _authUser, string _error, long linkId) {
+        debugfln("getEditLink(linkId: [%d])", linkId);
+        Link link;
+        string errorMessage = _error;
+        if(errorMessage.empty) {
+            link = getLinkFromDatabase(getUserId(), linkId);
+            enforce(isLinkIdValid(link), "Invalid link, please log out and back in and try again.");
+        }
+        render!("edit_link.dt", link, errorMessage);
+    }
+
+    @auth
+    @errorDisplay!getEditLink
+    @path("/link/edit")
+    void postUpdateLink(string _authUser,
+                        long linkId,
+                        string title,
+                        string url,
+                        string category,
+                        bool archived,
+                        bool favorite) {
+        title = strip(title);
+        url = strip(url);
+        category = strip(category);
+        debugfln("postUpdateLink(title: [%s], url: [%s], category: [%s], archived: [%d], favorite:[%d]",
+                 title,
+                 url,
+                 category,
+                 archived,
+                 favorite);
+
+        enforce(!strip(title).empty, "Title cannot be blank");
+        enforce(validateTitle(title), format("Title is too long, max characters: %d", MAX_TITLE_LENGTH));
+        enforce(!strip(url).empty, "URL cannot be blank");
+        enforce(validateCategory(category),
+                format("Category is too long, max characters: %d", MAX_CATEGORY_LENGTH));
+
+        Link link;
+        link.linkId     = linkId;
+        link.category   = category;
+        link.isArchived = archived;
+        link.isFavorite = favorite;
+        link.title      = title;
+        link.url        = url;
+        debugfln("Trying to update URL: %s", link.url);
+
+        Link responseLink = updateLinkInDatabase(getUserId(), link);
+        enforce(isLinkIdValid(responseLink), "Error updating the database, please contact the developer");
+        redirect("/");
+    }
+
+    @auth
+    @path("/user/edit")
+    void getEditUser(string _authUser, string _error) {
+        long userId = getUserId();
+        try {
+            auto user = getUser(userId);
+            enforce(isUserIdValid(user), "Invalid User, please log out and back in.");
+            string errorMessage = _error;
+            render!("edit_user.dt", user, errorMessage);
+        } catch(Exception e) {
+            throw new HTTPStatusException(HTTPStatus.badRequest, format("Could not edit User, ID: %d", userId));
+        }
+    }
+
+    @auth
+    @errorDisplay!getEditUser
+    @path("/user/edit")
+    void postEditUser(string _authUser,
+            string currentPassword,
+            string newPassword,
+            string repeatedNewPassword,
+            bool forceClientLogout) {
+        auto userId = getUserId();
+        debugfln("Trying to update User with ID: %d", userId);
+        auto user = getUser(userId);
+        enforce(validateLogin(user, currentPassword),
+                    "Current password is incorrect");
+        enforce(validateLogin(user, currentPassword),
+                    "Current password is incorrect");
+
+        if(forceClientLogout) {
+            enforce(updateUserAuthInfo(userId), "Error forcing Android clients to log out");
+        }
+
+        if(!newPassword.empty && !repeatedNewPassword.empty) {
+            if(validatePasswordChange(newPassword, repeatedNewPassword)) {
+                // New passwords match, attempt to update in DB
+                enforce(updateUserPassword(userId, newPassword), "Error updating your password");
+            } else {
+                enforce(false, "Your new passwords do not match");
+            }
+        }
+
+        redirect("/");
+    }
+
+    @auth
+    @path("/link/save")
     void getSave(string _authUser, string url) {
-        enforce(validateUrl(url), "Invalid URL");
+        enforce(validateUrl(url), "Invalid URL: " ~ url);
         addUrlToDatabase(getUserId(), url);
-        redirect("./");
+        redirect("/");
     }
 
     // Method name gets mapped to "GET /login" and a single optional
@@ -78,13 +183,13 @@ class LinkServiceWeb {
         debugfln("postLogin() username: %s, password: %s", username, password);
 
         User user = usersDb.getUser(username);
-        enforceHTTP(validateLogin(user, password), HTTPStatus.forbidden, "Invalid user name or password.");
+        enforce(validateLogin(user, password), "Invalid user name or password.");
 
         UserSettings s;
         s.loggedIn = true;
         s.user = user;
         m_userSettings = s;
-        redirect("./");
+        redirect("/");
     }
 
     // GET /logout
@@ -94,20 +199,7 @@ class LinkServiceWeb {
         // NOTE: there is also a terminateSession() function in vibe.web.web
         // that avoids the need to work with a raw HTTPServerResponse.
         res.terminateSession();
-        redirect("./login");
-    }
-
-    // GET /settings
-    // This method uses a custom @auth attribute (defined below) that injects
-    // code to ensure correct authentication and that fills the _authUser parameter
-    // with the authenticated user name
-    @auth
-    void getSettings(string _authUser, string _error = null) {
-        UserSettings settings = m_userSettings;
-        auto error = _error;
-        auto pageTitle = "asdf";
-        auto errorMessage ="aa";
-        render!("error.dt", pageTitle, errorMessage, error, settings);
+        redirect("/login");
     }
 
     // Defines the @auth attribute in terms of an @before annotation. @before causes
