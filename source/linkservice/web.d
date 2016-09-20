@@ -160,9 +160,14 @@ class LinkServiceWeb {
     @auth
     @path("/link/save")
     void getSave(string _authUser, string url) {
-        enforce(validateUrl(url), "Invalid URL: " ~ url);
-        addUrlToDatabase(getUserId(), url);
-        redirect("/");
+        Link link;
+        link.url = strip(url);
+        enforce(validateUrl(link.url), "Invalid URL: " ~ link.url);
+        Link responseLink = addLinkToDatabase(getUserId(), link);
+        debugfln("Link add successful? %d, link ID: %d", isLinkIdValid(responseLink), responseLink.linkId);
+        enforce(isLinkIdValid(responseLink), "Could not save link to database");
+
+        redirect(format("/link/edit/?linkId=%d", responseLink.linkId));
     }
 
     // Method name gets mapped to "GET /login" and a single optional

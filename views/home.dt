@@ -1,18 +1,28 @@
 - import std.datetime;
+- string title = "Saved Links";
 - void css(string file)
     link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
 
 doctype html
 html
     head
-        title Saved Links
+        title =title
         - css("common");
     body
-        div
-            p Logged in as:
-                b =settings.user.username
-                a(href="/user/edit/") Edit Profile
-                a(href="/logout") Log Out
+        .material-form
+            h2 =title
+            - if ( errorMessage != null )
+                .error(align='center')
+                    b =errorMessage
+            div
+                p Welcome,
+                    b =settings.user.username
+                    br
+                    div(align='right')
+                        a(href='/user/edit')
+                            input(type='button', value='Edit Profile')
+                        a(href='/logout')
+                            input(type='button', value='Log Out')
 
         - int index = 1;
         - import std.stdio;
@@ -31,7 +41,7 @@ html
                     - string editUrl = format("/link/edit/?linkId=%d", link.linkId);
                     - string favorite = link.isFavorite ? "♥" : "♡";
                     - string url = link.url;
-                    - string title = (link.title != null) ? link.title : link.url;
+                    - string linkTitle = (link.title != null) ? link.title : link.url;
                     - string category = link.category;
                     - auto time = SysTime(unixTimeToStdTime(link.timestamp));
                     - string timeString = format("%s %s", time.month, time.day);
@@ -45,7 +55,7 @@ html
                         td
                             =favorite
                         td
-                            a(href=url,target="_blank")=title
+                            a(href=url,target="_blank")=linkTitle
                         td
                             =category
                         td

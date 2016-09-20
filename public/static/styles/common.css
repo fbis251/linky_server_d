@@ -94,8 +94,8 @@ td {
 }
 .material-form input[type="button"],
 .material-form input[type="submit"]{
-    -moz-box-shadow: inset 0px 1px 0px 0px #ff6f00;
-    -webkit-box-shadow: inset 0px 1px 0px 0px #ff6f00;
+    -moz-box-shadow: inset 0px -1px 0px 0px #ff6f00;
+    -webkit-box-shadow: inset 0px -1px 0px 0px #ff6f00;
     box-shadow: inset 0px -1px 0px 0px #ff6f00;
     background-color: #ffc107;
     border: 1px solid #ffa000;
