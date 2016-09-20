@@ -75,7 +75,7 @@ class UsersDb {
     }
 
     public bool updateUserAuthKey(long userId, string newAuthKey) {
-        debugfln("updateUserAuthKey(%d, %s, %s)", userId, newAuthKey);
+        debugfln("updateUserAuthKey(%d, %s)", userId, newAuthKey);
 
         string query = format("UPDATE %s SET %s = \"%s\" WHERE %s = %d;",
             TALBE_USERS,
