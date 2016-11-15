@@ -7,9 +7,10 @@
     "license": "MIT",
     "targetPath": "bin",
     "dependencies": {
-        "d2sqlite3": "~>0.9.7",
+        "d2sqlite3": "~>0.9.8",
+        "dini": "~>1.0.1",
         "sodium": "~>0.0.8",
-        "vibe-d": "~>0.7.29"
+        "vibe-d": "~>0.7.30"
     },
     "versions": ["VibeDefaultMain"]
 }
