@@ -1,6 +1,6 @@
 doctype html
 html
     head
-        title =pageTitle
+        title= pageTitle
     body
-        b =errorMessage
+        b= errorMessage

@@ -1,18 +1,18 @@
-- string title = "Link Saver Login";
+- string title = "Linky Login";
 doctype html
 - void css(string file)
-    link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
+    link(rel='stylesheet', type='text/css', href='/static/styles/#{file}.css')
 
 html
     head
-        title =title
+        title= title
         - css("common");
     body
         .material-form
-            h2 =title
+            h2= title
             - if ( errorMessage != null )
                 .error(align='center')
-                    b =errorMessage
+                    b= errorMessage
             form(action="/login",method="post")
                 input(name="username", type="text", placeholder='Username', autofocus)
                 input(name="password", type="password", placeholder='Password')

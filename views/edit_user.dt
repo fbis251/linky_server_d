@@ -5,14 +5,14 @@
 doctype html
 html
     head
-        title =title
+        title= title
         - css("common");
     body
         .material-form
-            h2 =title
+            h2= title
             - if ( errorMessage != null )
                 .error(align='center')
-                    b =errorMessage
+                    b= errorMessage
             p Your current password is needed in order to edit your profile
             form(action='/user/edit/', method='post')
                 input(type='password', name='currentPassword', placeholder='Current Password')

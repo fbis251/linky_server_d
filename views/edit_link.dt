@@ -5,14 +5,14 @@
 doctype html
 html
     head
-        title =title
+        title= title
         - css("common");
     body
         .material-form
-            h2 =title
+            h2= title
             - if ( errorMessage != null )
                 .error(align='center')
-                    b =errorMessage
+                    b= errorMessage
             form(action='/link/edit/', method='post')
                 input(type='hidden', name='linkId', value='#{link.linkId}')
                 input(type='text', name='title', maxlength='100', placeholder='Link Title', value='#{link.title}')

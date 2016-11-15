@@ -1,28 +1,32 @@
+- import std.string;
 - import std.datetime;
-- string title = "Saved Links";
+- string title = "Linky";
 - void css(string file)
     link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
 
 doctype html
 html
     head
-        title =title
+        title= title
         - css("common");
     body
         .material-form
-            h2 =title
+            h2
+                label(for='menu-toggle') [Menu]
+                =title
+                input#menu-toggle(type='checkbox')
+                ul#menu
+                    li
+                        a(href='/link/add') Add Link
+                    li
+                        a(href='/user/edit') Edit Profile
+                    li
+                        a(href='/logout') Log Out
             - if ( errorMessage != null )
                 .error(align='center')
-                    b =errorMessage
+                    b= errorMessage
             div
-                p Welcome,
-                    b =settings.user.username
-                    br
-                    div(align='right')
-                        a(href='/user/edit')
-                            input(type='button', value='Edit Profile')
-                        a(href='/logout')
-                            input(type='button', value='Log Out')
+                p Welcome, #[b #{settings.user.username}]
 
         - int index = 1;
         - import std.stdio;
@@ -49,9 +53,9 @@ html
                         td
                             =index
                         td
-                            a.delete(href=deleteUrl)[x]
+                            a.delete(href=deleteUrl) [x]
                         td
-                            a(href=editUrl)Edit
+                            a(href=editUrl) Edit
                         td
                             =favorite
                         td
