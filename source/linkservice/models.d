@@ -8,33 +8,52 @@ struct AddLinkResponse {
 
 /// A URL and its metadata such as title, timestamp, category, etc
 struct Link {
+    /// .
     ulong linkId;
+    /// .
     string category;
+    /// .
     bool isArchived;
+    /// .
     bool isFavorite;
+    /// .
     int timestamp;
+    /// .
     string title;
+    /// .
     string url;
 }
 
 /// A request sent to /api/login
 struct LoginRequest {
-    string username; /// The username to use during login
-    string password; /// The password to use during login
+    /// The username to use during login
+    string username;
+    /// The password to use during login
+    string password;
 }
 
 /// Sent to the client indicating the success of the login procedure, plus an authentication token
 struct LoginResponse {
-    long userId;       /// The user ID of the account that successfully authenticated
-    string authString; /// The authentication string a client should use when requesting a user's data
-    string username;   /// The username of the account that successfully authenticated
+    /// The user ID of the account that successfully authenticated
+    long userId;
+    /// The authentication string a client should use when requesting a user's data
+    string authString;
+    /// The username of the account that successfully authenticated
+    string username;
 }
 
-struct User {
+/// .
+struct User { // TODO: Move this to a server_models module, data such as the authKey should not be getting sent to the clients!
+    /// .
     ulong  userId;
+    /// .
     string authKey;
+    /// .
     ulong  createdTimestamp;
+    /// .
     ulong  lastSync;
+    /// .
     string passwordHash;
+    /// .
     string username;
 }
