@@ -12,7 +12,7 @@ struct Link {
     string category;
     bool isArchived;
     bool isFavorite;
-    ulong timestamp;
+    int timestamp;
     string title;
     string url;
 }
