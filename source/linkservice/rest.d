@@ -1,5 +1,8 @@
 module linkservice.rest;
 
+import std.string;
+import std.exception : enforce;
+
 import vibe.appmain;
 import vibe.core.core;
 import vibe.core.log;
