@@ -27,7 +27,7 @@ const static ID_COLUMN_URL         = 6;
 const static ID_COLUMN_USER_ID     = 7;
 
 class LinksDb {
-    Database sqliteDb;
+    private Database sqliteDb;
 
     this(Database database){
         debugfln("LinksDb()");

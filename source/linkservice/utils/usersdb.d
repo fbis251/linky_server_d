@@ -16,7 +16,7 @@ const static COLUMN_CREATED_TIMESTAMP = "CREATED_TIMESTAMP";
 
 /// Handles getting and inserting users into the database
 class UsersDb {
-    Database sqliteDb;
+    private Database sqliteDb;
 
     this(Database database) {
         debugfln("UsersDb()");
