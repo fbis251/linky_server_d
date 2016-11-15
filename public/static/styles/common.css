@@ -177,3 +177,17 @@ td {
     display: block;
   }
 }
+
+/* Menu Toggle */
+label {
+  cursor: pointer;
+}
+#menu-toggle {
+  display: none; /* hide the checkbox */
+}
+#menu {
+  display: none;
+}
+#menu-toggle:checked + #menu {
+  display: block;
+}
