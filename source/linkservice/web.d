@@ -41,6 +41,14 @@ class LinkServiceWeb {
     }
 
     @auth
+    @path("/link/add")
+    void getSave(string _authUser) {
+        string errorMessage = "";
+        Link link;
+        render!("edit_link.dt", serverConfig, link, errorMessage);
+    }
+
+    @auth
     @path("/link/delete")
     void getDelete(string _authUser, long linkId) {
         bool result = false;
