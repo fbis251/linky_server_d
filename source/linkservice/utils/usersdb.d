@@ -3,16 +3,16 @@ module linkservice.utils.usersdb;
 import std.format, std.datetime;
 import d2sqlite3;
 
-import linkservice.models;
+import linkservice.models_server;
 import linkservice.common;
 
-const static TALBE_USERS              = "USERS";
-const static COLUMN_USER_ID           = "USER_ID";
-const static COLUMN_USERNAME          = "USERNAME";
-const static COLUMN_PASSWORD_HASH     = "PASSWORD_HASH";
-const static COLUMN_AUTH_KEY          = "AUTH_KEY";
-const static COLUMN_LAST_SYNC         = "LAST_SYNC";
-const static COLUMN_CREATED_TIMESTAMP = "CREATED_TIMESTAMP";
+const static TALBE_USERS                  = "USERS";
+const static COLUMN_USER_ID               = "USER_ID";
+const static COLUMN_USERNAME              = "USERNAME";
+const static COLUMN_PASSWORD_HASH         = "PASSWORD_HASH";
+const static COLUMN_AUTH_KEY              = "AUTH_KEY";
+const static COLUMN_LAST_UPDATE_TIMESTAMP = "LAST_UPDATE_TIMESTAMP";
+const static COLUMN_CREATED_TIMESTAMP     = "CREATED_TIMESTAMP";
 
 /// Handles getting and inserting users into the database
 class UsersDb {
@@ -128,13 +128,38 @@ class UsersDb {
         return false;
     }
 
+    public bool updateLastUpdateTimestamp(long userId) {
+        debugfln("updateLastUpdateTimestamp(%d)", userId);
+        string query = format("UPDATE %s SET %s = strftime('%%s','now') WHERE %s = %d;",
+            TALBE_USERS,
+            COLUMN_LAST_UPDATE_TIMESTAMP,
+            COLUMN_USER_ID,
+            userId);
+
+        debugfln("Query: %s", query);
+
+        int previousChangeCount = sqliteDb.totalChanges;
+        try {
+            Statement statement = sqliteDb.prepare(query);
+            statement.execute();
+            // If the query was successful the total change count will be increased
+            bool result = sqliteDb.totalChanges > previousChangeCount;
+            debugfln("updateLastUpdateTimestamp() result: %s", result ? "true" : "false");
+            return result;
+        } catch (SqliteException e) {
+            errorfln("ERROR updating user password, error: %s", e.msg);
+        }
+
+        return false;
+    }
+
     /// Gets a User object from a database row result
     private User getUserFromRow(Row row) {
         User user;
         user.userId = row.peek!long(0);
         user.authKey = row[COLUMN_AUTH_KEY].as!string;
         user.createdTimestamp = row[COLUMN_CREATED_TIMESTAMP].as!int;
-        user.lastSync = row[COLUMN_LAST_SYNC].as!int;
+        user.lastUpdateTimestamp = row[COLUMN_LAST_UPDATE_TIMESTAMP].as!int;
         user.passwordHash = row[COLUMN_PASSWORD_HASH].as!string;
         user.username = row[COLUMN_USERNAME].as!string;
         return user;

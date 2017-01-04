@@ -16,6 +16,7 @@ import core.time;
 import linkservice.common;
 import linkservice.models;
 import linkservice.models_auth;
+import linkservice.models_server;
 
 @path("/api/1")
 interface LinksRestApiV1 {
@@ -53,6 +54,10 @@ interface LinksRestApiV1 {
 
     @headerParam("_basicAuth", "Authorization")
     Json getLinks(string _basicAuth);
+
+    @headerParam("_basicAuth", "Authorization")
+    @path("user_info")
+    Json getUserInfo(string _basicAuth);
 }
 
 /// Version 1 of the Link Saver Rest API
@@ -196,5 +201,14 @@ override:
         logInfo("User:%s, URL count: %d", user.username, linksArray.length);
 
         return serializeToJson(linksArray);
+    }
+
+    Json getUserInfo(string _basicAuth) {
+        logInfo("GET /user_info");
+        UserInfoResponse response;
+        const User user = getUserFromAuthHeader(_basicAuth);
+        response.lastUpdateTimestamp = user.lastUpdateTimestamp;
+
+        return serializeToJson(response);
     }
 }

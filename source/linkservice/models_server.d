@@ -23,4 +23,21 @@ struct LinkyConfig {
     string address = CONFIG_DEFAULT_ADDRESS;
     /// .
     ushort port = CONFIG_DEFAULT_PORT;
+    //bool allow_registrations = false;
+}
+
+/// .
+struct User {
+    /// .
+    ulong  userId;
+    /// .
+    string authKey;
+    /// .
+    int  createdTimestamp;
+    /// .
+    int lastUpdateTimestamp;
+    /// .
+    string passwordHash;
+    /// .
+    string username;
 }

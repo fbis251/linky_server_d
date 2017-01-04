@@ -15,7 +15,7 @@ import linkservice.models_server;
 
 // Form submission validation, max field lengths
 const int MAX_CATEGORY_LENGTH = 50;
-const int MAX_TITLE_LENGTH = 100;
+const int MAX_TITLE_LENGTH = 200;
 
 const long INVALID_LINK_ID = 0;
 const long INVALID_USER_ID = 0;
@@ -25,11 +25,13 @@ LinkyConfig serverConfig;
 
 /// Adds a Link to the database for the User with userId
 Link addLinkToDatabase(long userId, Link link) {
+    Link invalidLink = getInvalidLink();
     if(!validateUrl(link.url)) {
-        return getInvalidLink();
+        return invalidLink;
     }
 
-    return linksDb.insertLink(userId, link);
+    Link resultLink = linksDb.insertLink(userId, link);
+    return updateLastUpdateTimestamp(userId) ? resultLink : invalidLink;
 }
 
 /// Adds a URL into the database for the User with userId
@@ -38,12 +40,12 @@ bool addUrlToDatabase(long userId, string url) {
     Link  link;
     link.url = url;
     Link resultLink = linksDb.insertLink(userId, link);
-    return isLinkIdValid(resultLink);
+    return isLinkIdValid(resultLink) && updateLastUpdateTimestamp(userId);
 }
 
 /// Updates the archived status of a Link
 bool archiveLink(long userId, long linkId, bool isArchived) {
-    return linksDb.setArchived(userId, linkId, isArchived);
+    return linksDb.setArchived(userId, linkId, isArchived) && updateLastUpdateTimestamp(userId);
 }
 
 /// Deletes a Link from the database
@@ -53,7 +55,7 @@ bool deleteLinkFromDatabase(long userId, long linkId) {
         throw new HTTPStatusException(HTTPStatus.badRequest, errorMessage);
     }
 
-    return linksDb.deleteLink(userId, linkId);
+    return linksDb.deleteLink(userId, linkId) && updateLastUpdateTimestamp(userId);
 }
 
 /// Renders an error page with the HTTP error message and code
@@ -65,7 +67,7 @@ void errorPage(HTTPServerRequest req, HTTPServerResponse res, HTTPServerErrorInf
 
 /// Updates the favorite status of a Link
 bool favoriteLink(long userId, long linkId, bool isFavorite) {
-    return linksDb.setFavorite(userId, linkId, isFavorite);
+    return linksDb.setFavorite(userId, linkId, isFavorite) && updateLastUpdateTimestamp(userId);
 }
 
 /// Gets all the stored Links for the user with userId from the database
@@ -124,11 +126,13 @@ bool isUserIdValid(User user) {
 
 /// Updates the Link data in the database
 Link updateLinkInDatabase(long userId, Link link) {
+    Link invalidLink = getInvalidLink();
     if(!validateUrl(link.url)) {
-        return getInvalidLink();
+        return invalidLink;
     }
 
-    return linksDb.updateLink(userId, link);
+    Link resultLink = linksDb.updateLink(userId, link);
+    return updateLastUpdateTimestamp(userId) ? resultLink : invalidLink;
 }
 
 /// Generates a new auth user string for the passed-in User. Useful for a login response in the REST service
@@ -146,6 +150,7 @@ bool updateUserAuthInfo(const long userId) {
 
 /// Validates the passed-in BasicAuthUser and verifies that the auth token is valid for the User's stored key
 bool isUserAuthValid(const User user, const BasicAuthUser basicAuthUser) {
+    //const long userId = user.userId;
     ubyte[] userKey = Base64.decode(user.authKey);
     ubyte[] decodedToken = Base64.decode(basicAuthUser.token);
     ubyte[] decodedMac = Base64.decode(basicAuthUser.mac);
@@ -194,6 +199,12 @@ bool validateUrl(const string url) {
 bool updateUserPassword(long userId, string newPassword) {
     string newPasswordHash = hashPassword(newPassword);
     return usersDb.updateUserPasswordHash(userId, newPasswordHash);
+}
+
+/// Updates a user's last updated timestamp for actions such as adding new links, updating current links, etc.
+bool updateLastUpdateTimestamp(long userId) {
+    debugfln("updateLastUpdateTimestamp(%d)", userId);
+    return usersDb.updateLastUpdateTimestamp(userId);
 }
 
 ///////////////////////////

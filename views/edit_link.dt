@@ -15,7 +15,7 @@ html
                     b= errorMessage
             form(action='/link/edit/', method='post')
                 input(type='hidden', name='linkId', value='#{link.linkId}')
-                input(type='text', name='title', maxlength='100', placeholder='Link Title', value='#{link.title}')
+                input(type='text', name='title', maxlength='200', placeholder='Link Title', value='#{link.title}')
                 input(type='url', name='url', placeholder='http://example.com', value='#{link.url}')
                 input(type='text', name='category', maxlength='50', placeholder='Category', value='#{link.category}')
                 label

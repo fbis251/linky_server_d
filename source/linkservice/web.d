@@ -11,6 +11,7 @@ import vibe.web.web;
 
 import linkservice.common;
 import linkservice.models;
+import linkservice.models_server;
 
 /// Aggregates all information about the currently logged in user (if any).
 struct UserSettings {

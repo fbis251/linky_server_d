@@ -42,18 +42,8 @@ struct LoginResponse {
     string username;
 }
 
-/// .
-struct User { // TODO: Move this to a server_models module, data such as the authKey should not be getting sent to the clients!
-    /// .
-    ulong  userId;
-    /// .
-    string authKey;
-    /// .
-    ulong  createdTimestamp;
-    /// .
-    ulong  lastSync;
-    /// .
-    string passwordHash;
-    /// .
-    string username;
+/// A response that contains the user's last update timestamp
+struct UserInfoResponse {
+    /// A timestamp for the last link update (adds, edits, removals, etc)
+    int lastUpdateTimestamp;
 }
