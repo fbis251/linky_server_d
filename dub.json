@@ -8,7 +8,7 @@
     "targetPath": "bin",
     "dependencies": {
         "d2sqlite3": "~>0.9.8",
-        "dini": "~>1.0.1",
+        "dini": "~>2.0.0",
         "sodium": "~>0.0.8",
         "vibe-d": "~>0.7.30"
     },
