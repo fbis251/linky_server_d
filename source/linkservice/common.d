@@ -4,12 +4,14 @@ import std.algorithm, std.array, std.base64, std.conv, std.format, std.stdio, st
 
 import d2sqlite3;
 import vibe.http.router;
+import dini;
 
 import linkservice.utils.crypto;
 import linkservice.utils.linksdb;
 import linkservice.utils.usersdb;
 import linkservice.models;
 import linkservice.models_auth;
+import linkservice.models_server;
 
 // Form submission validation, max field lengths
 const int MAX_CATEGORY_LENGTH = 50;
@@ -19,6 +21,7 @@ const long INVALID_LINK_ID = 0;
 const long INVALID_USER_ID = 0;
 LinksDb linksDb;     /// The links database
 UsersDb usersDb;     /// The users database
+LinkyConfig serverConfig;
 
 /// Adds a Link to the database for the User with userId
 Link addLinkToDatabase(long userId, Link link) {
@@ -143,7 +146,6 @@ bool updateUserAuthInfo(const long userId) {
 
 /// Validates the passed-in BasicAuthUser and verifies that the auth token is valid for the User's stored key
 bool isUserAuthValid(const User user, const BasicAuthUser basicAuthUser) {
-    long userId = user.userId;
     ubyte[] userKey = Base64.decode(user.authKey);
     ubyte[] decodedToken = Base64.decode(basicAuthUser.token);
     ubyte[] decodedMac = Base64.decode(basicAuthUser.mac);
@@ -168,6 +170,7 @@ bool validateLogin(User user, string password) {
     return userIdValid && passValid;
 }
 
+/// Makes sure that the new passwords are valid
 bool validatePasswordChange(string newPassword, string repeatedNewPassword) {
     return newPassword == repeatedNewPassword;
 }
@@ -187,9 +190,29 @@ bool validateUrl(const string url) {
     return !strip(url).empty;
 }
 
+/// Updates a user's password in the database
 bool updateUserPassword(long userId, string newPassword) {
     string newPasswordHash = hashPassword(newPassword);
     return usersDb.updateUserPasswordHash(userId, newPasswordHash);
+}
+
+///////////////////////////
+// Configuration Parsing //
+///////////////////////////
+LinkyConfig getIniConfig(Ini ini) {
+    LinkyConfig config;
+    if(ini.hasSection("db")) {
+        config.databasePath = ini["db"].getKey("database_path", config.databasePath);
+    }
+    if(ini.hasSection("server")) {
+        auto section = ini["server"];
+        config.siteTitle = section.getKey("site_title", config.siteTitle);
+        config.address = section.getKey("address", config.address);
+        if(section.hasKey("port")) {
+            config.port = to!ushort(section.getKey("port"));
+        }
+    }
+    return config;
 }
 
 //////////////////

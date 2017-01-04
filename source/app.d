@@ -9,19 +9,24 @@ import vibe.web.rest;
 import std.stdio;
 
 import d2sqlite3;
+import dini;
+
 import linkservice.utils.linksdb;
 import linkservice.utils.usersdb;
 import linkservice.common;
 import linkservice.rest;
 import linkservice.web;
+import linkservice.models_server;
 
 ///
 shared static this() {
-    string databasePath = "private/link_saver.db";
-    auto db = Database(databasePath);
+    auto ini = Ini.Parse("server.conf");
+    serverConfig = getIniConfig(ini);
+    writefln("Site Title: %s", serverConfig.siteTitle);
+    auto db = Database(serverConfig.databasePath);
     linksDb = new LinksDb(db);
     usersDb = new UsersDb(db);
-    logInfo("Database initialized %s", databasePath);
+    logInfo("Database initialized %s", serverConfig.databasePath);
 
     auto router = new URLRouter;
     router
@@ -37,7 +42,7 @@ shared static this() {
     auto settings = new HTTPServerSettings();
     settings.sessionStore = new MemorySessionStore();
     settings.errorPageHandler = toDelegate(&errorPage);
-    settings.port = 8251;
-    settings.bindAddresses = ["::", "0.0.0.0"];
+    settings.port = serverConfig.port;
+    settings.bindAddresses = [serverConfig.address];
     listenHTTP(settings, router);
 }

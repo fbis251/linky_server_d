@@ -1,4 +1,4 @@
-- string title = "Linky Login";
+- string title = "Log In - " ~ serverConfig.siteTitle;
 doctype html
 - void css(string file)
     link(rel='stylesheet', type='text/css', href='/static/styles/#{file}.css')

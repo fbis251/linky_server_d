@@ -37,7 +37,7 @@ class LinkServiceWeb {
         string errorMessage = _error;
         auto linksArray = getLinksFromDatabase(getUserId());
         reverse(linksArray);
-        render!("home.dt", linksArray, settings, errorMessage);
+        render!("home.dt", serverConfig, linksArray, settings, errorMessage);
     }
 
     @auth
@@ -68,7 +68,7 @@ class LinkServiceWeb {
             link = getLinkFromDatabase(getUserId(), linkId);
             enforce(isLinkIdValid(link), "Invalid link, please log out and back in and try again.");
         }
-        render!("edit_link.dt", link, errorMessage);
+        render!("edit_link.dt", serverConfig, link, errorMessage);
     }
 
     @auth
@@ -119,7 +119,7 @@ class LinkServiceWeb {
             auto user = getUser(userId);
             enforce(isUserIdValid(user), "Invalid User, please log out and back in.");
             string errorMessage = _error;
-            render!("edit_user.dt", user, errorMessage);
+            render!("edit_user.dt", serverConfig, user, errorMessage);
         } catch(Exception e) {
             throw new HTTPStatusException(HTTPStatus.badRequest, format("Could not edit User, ID: %d", userId));
         }
@@ -174,7 +174,7 @@ class LinkServiceWeb {
     // _error parameter is accepted (see postLogin)
     void getLogin(string _error = null) {
         string errorMessage = _error;
-        render!("login.dt", errorMessage);
+        render!("login.dt", serverConfig, errorMessage);
     }
 
     // Method name gets mapped to "POST /login" and two HTTP form parameters

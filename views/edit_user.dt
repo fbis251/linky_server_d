@@ -1,4 +1,4 @@
-- string title = "Edit Your Profile";
+- string title = "Edit Your Profile - " ~ serverConfig.siteTitle;
 - void css(string file)
     link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
 

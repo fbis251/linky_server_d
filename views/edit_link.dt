@@ -1,4 +1,4 @@
-- string title = "Edit Saved Link";
+- string title = "Edit Saved Link - " ~ serverConfig.siteTitle;
 - void css(string file)
     link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
 

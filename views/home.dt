@@ -1,6 +1,6 @@
 - import std.string;
 - import std.datetime;
-- string title = "Linky";
+- string title = "Home - " ~ serverConfig.siteTitle;
 - void css(string file)
     link(rel= 'stylesheet', type='text/css', href='/static/styles/#{file}.css')
 
